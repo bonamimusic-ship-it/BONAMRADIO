@@ -1,0 +1,75 @@
+name: Build Track List
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tracks/**'
+      - '.github/workflows/build-tracks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate tracks.json
+        run: |
+          python3 <<'EOF'
+          import os, json, re
+
+          AUDIO_EXT = ('.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac')
+          TRACKS_DIR = 'tracks'
+
+          def clean_title(filename):
+              name = re.sub(r'\.[^.]+$', '', filename)
+              junk = [
+                  r'_KLICKAUD',
+                  r'_FREE_DOWNLOAD[A-Z0-9_]*',
+                  r'_FREE_DL[A-Z0-9_]*',
+                  r'__\d+_$',
+                  r'_\d+_FOLLOWERS[A-Z0-9_]*',
+                  r'_LINK_IN_DESCRIPTION_*',
+                  r'_29mar_mster',
+                  r'_mster$',
+              ]
+              for j in junk:
+                  name = re.sub(j, '', name, flags=re.IGNORECASE)
+              name = name.replace('_', ' ')
+              name = re.sub(r'\s+', ' ', name).strip()
+              name = re.sub(r'\s+-\s+', ' — ', name)
+              return name.upper()
+
+          if not os.path.isdir(TRACKS_DIR):
+              tracks = []
+          else:
+              files = sorted(os.listdir(TRACKS_DIR))
+              tracks = []
+              for f in files:
+                  if f.lower().endswith(AUDIO_EXT) and not f.startswith('.'):
+                      tracks.append({
+                          'title': clean_title(f),
+                          'url': f'{TRACKS_DIR}/{f}'
+                      })
+
+          with open('tracks.json', 'w', encoding='utf-8') as out:
+              json.dump(tracks, out, ensure_ascii=False, indent=2)
+          print(f'Wrote tracks.json with {len(tracks)} entries')
+          EOF
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tracks.json
+          if git diff --cached --quiet; then
+            echo "No changes to tracks.json"
+          else
+            git commit -m "auto: update tracks.json"
+            git push
+          fi

@@ -1,0 +1,87 @@
+name: Build Track List
+
+# Runs whenever audio files are added/removed in tracks/, OR you click
+# "Run workflow" in the Actions tab manually.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tracks/**'
+      - '.github/workflows/build-tracks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate tracks.json
+        run: |
+          python3 <<'EOF'
+          import os, json, re, sys
+
+          AUDIO_EXT = ('.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac')
+          TRACKS_DIR = 'tracks'
+
+          def clean_title(filename):
+              # Strip extension
+              name = re.sub(r'\.[^.]+$', '', filename)
+              # Remove common junk tags
+              junk = [
+                  r'_KLICKAUD',
+                  r'_FREE_DOWNLOAD[A-Z0-9_]*',
+                  r'_FREE_DL[A-Z0-9_]*',
+                  r'__\d+_$',                  # trailing __1_, __2_
+                  r'_\d+_FOLLOWERS[A-Z0-9_]*',
+                  r'_LINK_IN_DESCRIPTION_*',
+                  r'_29mar_mster',
+                  r'_mster$',
+              ]
+              for j in junk:
+                  name = re.sub(j, '', name, flags=re.IGNORECASE)
+              # Encoded accents in filenames (e.g. Ste_phane → Stéphane, Lo_hlein → Löhlein)
+              # We can't perfectly recover these, so leave them — user can override
+              # Underscores → spaces
+              name = name.replace('_', ' ')
+              # Multiple spaces → single
+              name = re.sub(r'\s+', ' ', name).strip()
+              # Hyphens with spaces around them → em-dash for nicer display
+              name = re.sub(r'\s+-\s+', ' — ', name)
+              return name.upper()
+
+          if not os.path.isdir(TRACKS_DIR):
+              print(f'No {TRACKS_DIR}/ folder found — writing empty list')
+              tracks = []
+          else:
+              files = sorted(os.listdir(TRACKS_DIR))
+              tracks = []
+              for f in files:
+                  if f.lower().endswith(AUDIO_EXT) and not f.startswith('.'):
+                      tracks.append({
+                          'title': clean_title(f),
+                          'url': f'{TRACKS_DIR}/{f}'
+                      })
+
+          with open('tracks.json', 'w', encoding='utf-8') as out:
+              json.dump(tracks, out, ensure_ascii=False, indent=2)
+          print(f'Wrote tracks.json with {len(tracks)} entries')
+          for t in tracks:
+              print(f'  - {t["title"]}')
+          EOF
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tracks.json
+          if git diff --cached --quiet; then
+            echo "No changes to tracks.json"
+          else
+            git commit -m "auto: update tracks.json"
+            git push
+          fi

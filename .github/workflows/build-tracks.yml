@@ -4,7 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'tracks/**'
+      - '**.mp3'
+      - '**.wav'
+      - '**.ogg'
+      - '**.m4a'
+      - '**.flac'
+      - '**.aac'
       - '.github/workflows/build-tracks.yml'
   workflow_dispatch:
 
@@ -22,9 +27,9 @@ jobs:
         run: |
           python3 <<'EOF'
           import os, json, re
+          from urllib.parse import quote
 
           AUDIO_EXT = ('.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac')
-          TRACKS_DIR = 'tracks'
 
           def clean_title(filename):
               name = re.sub(r'\.[^.]+$', '', filename)
@@ -45,21 +50,28 @@ jobs:
               name = re.sub(r'\s+-\s+', ' — ', name)
               return name.upper()
 
-          if not os.path.isdir(TRACKS_DIR):
-              tracks = []
-          else:
-              files = sorted(os.listdir(TRACKS_DIR))
-              tracks = []
-              for f in files:
-                  if f.lower().endswith(AUDIO_EXT) and not f.startswith('.'):
-                      tracks.append({
-                          'title': clean_title(f),
-                          'url': f'{TRACKS_DIR}/{f}'
-                      })
+          tracks = []
+          for dirpath, dirnames, filenames in os.walk('.'):
+              dirnames[:] = [d for d in dirnames if d not in ('.git', '.github', 'node_modules')]
+              for f in sorted(filenames):
+                  if f.startswith('.'):
+                      continue
+                  if not f.lower().endswith(AUDIO_EXT):
+                      continue
+                  rel = os.path.relpath(os.path.join(dirpath, f), '.')
+                  url = '/'.join(quote(seg) for seg in rel.split(os.sep))
+                  tracks.append({
+                      'title': clean_title(f),
+                      'url': url
+                  })
+
+          tracks.sort(key=lambda t: t['title'])
 
           with open('tracks.json', 'w', encoding='utf-8') as out:
               json.dump(tracks, out, ensure_ascii=False, indent=2)
           print(f'Wrote tracks.json with {len(tracks)} entries')
+          for t in tracks:
+              print(f'  - {t["title"]}  ({t["url"]})')
           EOF
 
       - name: Commit if changed

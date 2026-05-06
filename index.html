@@ -728,7 +728,7 @@
 </main>
 
 <!-- Hidden audio element -->
-<audio id="audio" preload="auto"></audio>
+<audio id="audio" preload="auto" crossorigin="anonymous"></audio>
 
 <script>
 /* ============================================================
@@ -905,6 +905,7 @@
 
   /* ---------------- AUDIO ENGINE ---------------- */
   const audio = document.getElementById('audio');
+  audio.crossOrigin = 'anonymous'; // critical for Web Audio analyser on R2 audio
   let audioCtx = null;
   let analyser = null;
   let sourceNode = null;

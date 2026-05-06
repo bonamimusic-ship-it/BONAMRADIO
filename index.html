@@ -743,59 +743,54 @@
   /* ============================================================
      ⟦ BONAM TRANSMISSION QUEUE — CLOUDFLARE R2 ⟧
      ──────────────────────────────────────────────────────────
-     This page reads tracks directly from your Cloudflare R2 bucket.
-     To add music: drag MP3s into the R2 dashboard. The radio updates
-     itself within seconds — no commits, no GitHub Actions, no waiting.
-
-     R2 PUBLIC URL — this is your bucket's pub-*.r2.dev URL.
-     If you ever change buckets, update this single line.
+     The radio reads `tracks.json` from your R2 bucket. To update
+     the rotation: regenerate that file (the helper script in your
+     repo does this), drop it back in R2, refresh the radio.
   ============================================================ */
   const R2_PUBLIC_URL = 'https://pub-2197556d041f4dc595e7e9a65ebd2af8.r2.dev';
 
   let TRANSMISSIONS = [];
 
-  // Clean up filenames into nicer display titles
+  // Clean filename → display title
   function cleanTitle(filename) {
-    let name = filename.replace(/\.[^.]+$/, ''); // strip extension
+    let name = filename.replace(/\.[^.]+$/, '');
     const junk = [
-      /_KLICKAUD/gi,
-      /_FREE_DOWNLOAD[A-Z0-9_]*/gi,
-      /_FREE_DL[A-Z0-9_]*/gi,
-      /__\d+_$/gi,
-      /_\d+_FOLLOWERS[A-Z0-9_]*/gi,
-      /_LINK_IN_DESCRIPTION_*/gi,
+      /_KLICKAUD/gi, /_FREE_DOWNLOAD[A-Z0-9_]*/gi, /_FREE_DL[A-Z0-9_]*/gi,
+      /__\d+_$/gi, /_\d+_FOLLOWERS[A-Z0-9_]*/gi, /_LINK_IN_DESCRIPTION_*/gi,
     ];
     junk.forEach(j => { name = name.replace(j, ''); });
-    name = name.replace(/_/g, ' ');
-    name = name.replace(/\s+/g, ' ').trim();
+    name = name.replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
     name = name.replace(/\s+-\s+/g, ' — ');
     return name.toUpperCase();
   }
 
   async function fetchTransmissions() {
     try {
-      // R2 buckets with public-dev URLs expose an S3-style XML listing
-      // at the root. Parse it to discover every audio file in the bucket.
-      const res = await fetch(R2_PUBLIC_URL + '/?list-type=2', { cache: 'no-store' });
+      // tracks.json lives in the R2 bucket alongside the audio files.
+      // Cache-bust to pick up updates fast.
+      const res = await fetch(R2_PUBLIC_URL + '/tracks.json?t=' + Date.now(), { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const xml = await res.text();
-      const doc = new DOMParser().parseFromString(xml, 'application/xml');
-      const keys = [...doc.getElementsByTagName('Key')].map(n => n.textContent || '');
-      const audio = keys.filter(k => /\.(mp3|wav|ogg|m4a|flac|aac)$/i.test(k));
-      if (audio.length === 0) {
-        pushLog('R2 BUCKET EMPTY — NO TRANSMISSIONS', 'red');
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        pushLog('TRACKS.JSON EMPTY — NO TRANSMISSIONS', 'red');
         return [];
       }
-      const tracks = audio.map(key => ({
-        title: cleanTitle(key.split('/').pop()),
-        url: R2_PUBLIC_URL + '/' + key.split('/').map(encodeURIComponent).join('/'),
-      }));
-      tracks.sort((a, b) => a.title.localeCompare(b.title));
+      // Normalize entries — accept either {title, url}, {title, file}, or just "filename.mp3"
+      const tracks = data.map(entry => {
+        if (typeof entry === 'string') {
+          return { title: cleanTitle(entry), url: R2_PUBLIC_URL + '/' + encodeURIComponent(entry) };
+        }
+        const file = entry.file || entry.filename;
+        const url = entry.url
+          || (file ? R2_PUBLIC_URL + '/' + encodeURIComponent(file) : null);
+        const title = entry.title || (file ? cleanTitle(file) : 'UNTITLED');
+        return { title, url };
+      }).filter(t => t.url);
       return tracks;
     } catch (err) {
-      pushLog('COULD NOT REACH R2 BUCKET', 'red');
+      pushLog('COULD NOT LOAD TRACKS.JSON FROM R2', 'red');
       pushLog(`REASON: ${err.message || err}`, 'concrete');
-      pushLog('CHECK PUBLIC URL & BUCKET PERMISSIONS', 'cyan');
+      pushLog('CHECK FILE EXISTS AT BUCKET ROOT', 'cyan');
       return [];
     }
   }

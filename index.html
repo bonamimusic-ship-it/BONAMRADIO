@@ -1180,18 +1180,10 @@
         duration: NaN,
         ext: extFromUrl(entry.url),
       };
-      // probe duration via temporary audio element
-      const probe = document.createElement('audio');
-      probe.preload = 'metadata';
-      probe.crossOrigin = 'anonymous';
-      probe.src = entry.url;
-      probe.addEventListener('loadedmetadata', () => {
-        item.duration = probe.duration || 0;
-        renderPlaylist();
-      });
-      probe.addEventListener('error', () => {
-        // keep the entry; just no duration
-      });
+      // Note: we deliberately don't probe durations up front. Loading
+      // metadata for hundreds of tracks simultaneously thrashes the
+      // browser's media pipeline and interrupts the main audio element.
+      // Each track's duration populates the moment it actually plays.
       playlist.push(item);
     });
 
@@ -1261,8 +1253,33 @@
     cornerStatus.textContent = 'SIGNAL: LOCKED';
     renderPlaylist();
     pushLog(`CUE: ${t.title}`, 'cyan');
+    updateMediaSession(t);
     if (autoplay) play();
   }
+
+  /* ---------------- MEDIA SESSION (phone lock screen) ---------------- */
+  // Tells iOS/Android "this tab is playing audio" so the OS keeps it
+  // alive when the screen locks. Also surfaces track info + transport
+  // controls on the lock screen, AirPods, car Bluetooth, etc.
+  function updateMediaSession(track) {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: 'BONAM',
+        album: 'UNAUTHORISED TRANSMISSIONS // SOCARN',
+      });
+    } catch (e) { /* older browsers */ }
+  }
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.setActionHandler('play', () => { if (audio.paused) play(); });
+      navigator.mediaSession.setActionHandler('pause', () => { if (!audio.paused) pause(); });
+      navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
+      navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
+    } catch (e) { /* not all actions supported on all platforms */ }
+  }
+
   function play() {
     if (currentIndex === -1) {
       if (playlist.length === 0) { pushLog('NO TRANSMISSIONS REGISTERED', 'red'); return; }
@@ -1296,6 +1313,9 @@
     pushLog('SIGNAL HELD', 'concrete');
   }
   function setPlayingUI(playing) {
+    if ('mediaSession' in navigator) {
+      try { navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'; } catch (e) {}
+    }
     if (playing) {
       playBtn.classList.add('playing');
       playLabel.textContent = 'JAMMING';
@@ -1357,6 +1377,8 @@
   setVol(80);
 
   /* ---------------- AUDIO EVENTS ---------------- */
+  // Track which entries have failed so we don't loop on them
+  const deadIndices = new Set();
   audio.addEventListener('loadedmetadata', () => {
     if (currentIndex >= 0) {
       const t = playlist[currentIndex];
@@ -1391,19 +1413,33 @@
       if (repeatMode === 1) next = 0;
       else { setPlayingUI(false); cornerStatus.textContent = 'SIGNAL: END'; return; }
     }
+    // Skip past any tracks already known to be dead
+    let attempts = 0;
+    while (deadIndices && deadIndices.has(next) && attempts < playlist.length) {
+      next = (next + 1) % playlist.length;
+      attempts++;
+    }
     loadTrack(next, true);
   });
   audio.addEventListener('error', () => {
     if (currentIndex < 0 || !playlist[currentIndex]) return;
     const lost = playlist[currentIndex];
-    // Don't auto-skip — that just looks like the radio is broken when it's
-    // really a file path issue. Stop, log clearly, let the user investigate.
-    audio.pause();
-    setPlayingUI(false);
-    cornerStatus.textContent = 'SIGNAL: FILE NOT FOUND';
-    pushLog(`COULD NOT LOAD: ${lost.title}`, 'red');
-    pushLog(`PATH: ${lost.url}`, 'concrete');
-    pushLog(`CHECK FILE EXISTS — RETRY OR SKIP`, 'cyan');
+    deadIndices.add(currentIndex);
+    pushLog(`SKIPPING DEAD TRACK: ${lost.title}`, 'concrete');
+    // Auto-advance to next track that hasn't failed yet
+    if (deadIndices.size >= playlist.length) {
+      pushLog('ALL TRACKS DEAD — CHECK BUCKET', 'red');
+      setPlayingUI(false);
+      cornerStatus.textContent = 'SIGNAL: NO LIVE FEEDS';
+      return;
+    }
+    let next = currentIndex + 1;
+    let attempts = 0;
+    while (deadIndices.has(next) && attempts < playlist.length) {
+      next = (next + 1) % playlist.length;
+      attempts++;
+    }
+    loadTrack(next, true);
   });
 
   /* progress click + drag */

@@ -620,7 +620,7 @@
         <div class="np-meta">
           <div><span style="color:var(--concrete);">TRACK</span> <b id="npNum">—/—</b></div>
           <div><span style="color:var(--concrete);">DURATION</span> <b id="npDur">--:--</b></div>
-          <div><span style="color:var(--concrete);">BPM</span> <b class="red" id="npBpm">~128</b></div>
+         <div><span style="color:var(--concrete);">SIGNAL</span> <b class="red" id="npSignal">AWAITING</b></div>
           <div><span style="color:var(--concrete);">CLASS</span> <b class="red">ILLEGAL AUDIO RITUAL</b></div>
         </div>
       </div>
@@ -915,6 +915,7 @@
 
   function ensureAudioGraph() {
     if (connected) return;
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { connected = true; return; }
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       sourceNode = audioCtx.createMediaElementSource(audio);
@@ -1502,11 +1503,16 @@
     }
   }, 1500);
 
-  /* ---------------- BROADCAST LIVE EFFECT — random BPM display ---------------- */
+ /* ---------------- SIGNAL STATUS READOUT ---------------- */
   setInterval(() => {
+    const el = document.getElementById('npSignal');
+    if (!el) return;
     if (!audio.paused && currentIndex >= 0) {
-      const drift = 124 + Math.floor(Math.sin(Date.now() / 1700) * 4) + Math.floor(Math.random() * 3);
-      npBpm.textContent = '~' + drift;
+      el.textContent = 'ENCRYPTED';
+    } else if (currentIndex >= 0) {
+      el.textContent = 'HELD';
+    } else {
+      el.textContent = 'AWAITING';
     }
   }, 800);
 

@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BONAM Contraband</title>
+<meta name="description" content="Noise Guardian issue gear, seized by the Ministry of Silence. Embroidered, shipped worldwide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500;700;800&family=VT323&display=swap">
+<style>
+/* Layout: evidence locker. Status strip + ticker, case-file header, grid of exhibit cells with photographic turntables;
+   clicking an exhibit opens an inspection bay (drag-rotate, loupe, x-ray) anchored where the visitor is looking. */
+:root{
+  --ministry-red:#BE1826; --red-dim:#6e0e16;
+  --system-green:#26D296; --green-dim:#0d6b4b;
+  --cold-cyan:#417890; --cyan-dim:#1f3d4a;
+  --concrete:#69706C; --concrete-dim:#2a2d2c;
+  --black-signal:#08080B; --cell:#0c0d10; --cell-2:#101216;
+  --bone:#d8d2c4; --amber:#e8a93a;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --crt:'VT323',ui-monospace,monospace;
+  --stencil:'Big Shoulders Stencil',Impact,'Arial Narrow',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--black-signal);color:var(--bone)}
+body{font-family:var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative;min-height:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--system-green);outline-offset:3px}
+img{max-width:100%}
+[hidden]{display:none!important}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+
+/* status strip */
+.strip{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;padding-block:12px;border-bottom:1px solid var(--concrete-dim);
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.strip b{font-weight:500}
+.strip .spacer{flex:1}
+.rec{color:var(--ministry-red)}
+.rec i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ministry-red);margin-right:8px;vertical-align:1px;animation:blink 1.4s steps(2) infinite}
+.green{color:var(--system-green)} .red{color:var(--ministry-red)}
+@keyframes blink{50%{opacity:.15}}
+.haul-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--system-green);color:var(--system-green);padding:7px 12px;letter-spacing:.22em;font-weight:700}
+.haul-btn:hover{background:var(--system-green);color:var(--black-signal)}
+.haul-btn .n{font-family:var(--crt);font-size:18px;letter-spacing:.04em;line-height:1}
+
+.ticker{overflow:hidden;border-bottom:1px solid var(--concrete-dim);white-space:nowrap;font-size:11px;letter-spacing:.24em;color:var(--ministry-red);padding-block:10px}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 40s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+
+/* case file header */
+.head{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;padding-block:34px 26px;border-bottom:1px solid var(--concrete-dim)}
+.stamp{display:inline-block;font-family:var(--stencil);font-weight:700;letter-spacing:.2em;font-size:15px;color:var(--ministry-red);
+  border:2px solid var(--ministry-red);padding:2px 10px;transform:rotate(-2deg);margin-bottom:8px}
+h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,11.5vw,128px);overflow-wrap:normal;word-break:keep-all;line-height:.86;margin:0;letter-spacing:.01em;
+  color:var(--bone);text-shadow:2px 0 0 rgba(190,24,38,.7),-2px 0 0 rgba(65,120,144,.7);text-wrap:balance}
+.lede{margin:18px 0 0;font-size:13px;line-height:2;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete);max-width:46ch}
+.lede em{font-style:normal;color:var(--system-green)}
+.dossier{margin:0;border-left:1px solid var(--concrete-dim);padding-left:24px;display:grid;gap:12px;align-content:start;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.dossier div{display:flex;justify-content:space-between;gap:12px}
+.dossier dt{color:var(--concrete)}
+.dossier dd{margin:0;text-align:right;font-weight:700}
+
+/* exhibits */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:20px;padding-block:28px 0}
+.cell{position:relative;background:var(--cell);border:1px solid var(--concrete-dim);display:flex;flex-direction:column;min-width:0;transition:border-color .2s}
+.cell:hover{border-color:var(--green-dim)}
+.cell-top,.cell-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase}
+.cell-top{border-bottom:1px solid var(--concrete-dim);color:var(--concrete)}
+.seized{color:var(--ministry-red);border:1px dashed var(--ministry-red);padding:3px 7px}
+
+.stage{position:relative;aspect-ratio:1/1;width:100%;max-width:100%;overflow:hidden;
+  background:radial-gradient(ellipse 58% 46% at 50% 44%,rgba(65,120,144,.20),transparent 70%),var(--cell)}
+.stage::before{content:"";position:absolute;left:-30%;right:-30%;bottom:-10%;height:44%;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(38,210,150,.2) 0 1px,transparent 1px 44px),repeating-linear-gradient(0deg,rgba(38,210,150,.2) 0 1px,transparent 1px 44px);
+  transform:perspective(380px) rotateX(62deg);transform-origin:50% 100%;
+  -webkit-mask-image:linear-gradient(to top,#000 10%,transparent 95%);mask-image:linear-gradient(to top,#000 10%,transparent 95%)}
+.cell .stage{cursor:zoom-in}
+.reticle{position:absolute;inset:14px;pointer-events:none;z-index:6;opacity:.55;
+  --c:var(--system-green);
+  background:
+    linear-gradient(var(--c),var(--c)) top left/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) top left/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) top right/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) top right/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) bottom left/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom right/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) bottom right/1px 18px no-repeat}
+.readout{position:absolute;left:24px;bottom:22px;z-index:7;font-family:var(--crt);font-size:17px;letter-spacing:.06em;color:var(--system-green);line-height:1.08;text-shadow:0 0 6px rgba(38,210,150,.5);pointer-events:none}
+.mode{position:absolute;right:24px;top:22px;z-index:7;font-size:10px;letter-spacing:.24em;color:var(--concrete);pointer-events:none}
+.inspect-tag{position:absolute;right:24px;bottom:22px;z-index:7;font-size:10px;letter-spacing:.24em;color:var(--black-signal);background:var(--system-green);padding:5px 8px;
+  opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s;pointer-events:none}
+.cell:hover .inspect-tag,.cell .stage:focus-visible .inspect-tag{opacity:1;transform:none}
+
+.floor-shadow{position:absolute;left:50%;bottom:10%;width:50%;height:7%;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(closest-side,rgba(0,0,0,.9),rgba(0,0,0,0));filter:blur(5px);animation:shadow 6s ease-in-out infinite;z-index:1;pointer-events:none}
+.float{position:absolute;inset:7% 9% 14%;z-index:2;animation:bob 6s ease-in-out infinite;perspective:1400px;pointer-events:none}
+.tt{position:absolute;inset:0}
+.tt img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;will-change:transform,opacity;user-select:none;-webkit-user-drag:none;
+  filter:drop-shadow(0 0 1px rgba(216,210,196,.30)) drop-shadow(0 0 26px rgba(65,120,144,.55))}
+.tt img.macro{object-fit:cover;filter:none}
+.macro-on .float{inset:0;animation:none}
+.macro-on .floor-shadow,.macro-on .beam{display:none}
+.loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--crt);font-size:20px;color:var(--concrete);z-index:3;letter-spacing:.08em;pointer-events:none}
+
+.beam{position:absolute;left:0;right:0;height:22%;top:-22%;z-index:4;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(38,210,150,.09) 70%,rgba(38,210,150,.5) 99%,transparent);
+  mix-blend-mode:screen;animation:beam 6s cubic-bezier(.5,0,.5,1) infinite}
+.beam::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--system-green);box-shadow:0 0 12px 2px rgba(38,210,150,.7)}
+
+/* X-ray scan mode */
+.xray .tt img{filter:grayscale(1) brightness(3.4) contrast(1.5) sepia(1) hue-rotate(100deg) saturate(3) drop-shadow(0 0 10px rgba(38,210,150,.45))}
+.xray .stage::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(38,210,150,.08) 0 1px,transparent 1px 4px)}
+.xray .mode{color:var(--system-green)}
+
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6%)}}
+@keyframes shadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.9}50%{transform:translateX(-50%) scale(.86);opacity:.6}}
+@keyframes beam{0%{top:-22%}62%,100%{top:104%}}
+
+.cell-body{padding:16px 14px 6px;display:grid;gap:6px;border-top:1px solid var(--concrete-dim)}
+.name{font-family:var(--stencil);font-weight:900;font-size:40px;line-height:.95;letter-spacing:.02em;margin:0;text-wrap:balance}
+.spec{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete);margin:0;line-height:1.7}
+.cell-foot{margin-top:auto;padding-top:14px;border-top:1px dashed var(--concrete-dim)}
+.price{font-family:var(--crt);font-size:30px;letter-spacing:.04em;color:var(--bone);font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--system-green);border:1px solid var(--system-green);padding:11px 14px;background:transparent;transition:background .15s,color .15s}
+.btn:hover{background:var(--system-green);color:var(--black-signal)}
+.btn.solid{background:var(--system-green);color:var(--black-signal)}
+.btn.solid:hover{background:var(--bone);border-color:var(--bone)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;background:transparent;color:var(--concrete);border-color:var(--concrete-dim)}
+
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:32px;padding-top:16px;border-top:1px solid var(--concrete-dim);
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--concrete)}
+
+/* ---------- inspection bay + haul: anchored panels (work inside a fixed-height embed) ---------- */
+.scrim{position:absolute;left:0;right:0;top:0;z-index:90;background:rgba(4,4,6,.86);backdrop-filter:blur(3px)}
+.panel{position:absolute;left:50%;transform:translateX(-50%);z-index:100;width:min(1100px,calc(100% - 32px));
+  background:var(--cell);border:1px solid var(--green-dim);box-shadow:0 0 0 1px rgba(38,210,150,.08),0 30px 80px rgba(0,0,0,.6)}
+.panel-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--concrete-dim);
+  font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.x{font-size:11px;letter-spacing:.22em;color:var(--bone);border:1px solid var(--concrete-dim);padding:6px 10px}
+.x:hover{border-color:var(--bone)}
+
+.bay{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.bay-left{border-right:1px solid var(--concrete-dim);min-width:0}
+.bay .stage{cursor:grab;touch-action:pan-y}
+.bay .stage.dragging{cursor:grabbing}
+.bay.loupe-on .stage{cursor:crosshair;touch-action:none}
+.loupe{position:absolute;width:44%;aspect-ratio:1/1;border-radius:50%;z-index:8;pointer-events:none;border:1px solid var(--system-green);
+  box-shadow:0 0 0 4px rgba(8,8,11,.7),0 0 24px rgba(38,210,150,.35);background-color:var(--black-signal);background-repeat:no-repeat;transform:translate(-50%,-50%)}
+.loupe::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);
+  background:linear-gradient(var(--system-green),var(--system-green)) center/100% 1px no-repeat,linear-gradient(var(--system-green),var(--system-green)) center/1px 100% no-repeat;opacity:.7}
+.tools{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;border-top:1px solid var(--concrete-dim);align-items:center}
+.tool{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;border:1px solid var(--concrete-dim);color:var(--concrete);padding:7px 10px}
+.tool[aria-pressed="true"]{border-color:var(--system-green);color:var(--system-green)}
+.tool:hover{color:var(--bone)}
+.hint{margin-left:auto;font-size:10px;letter-spacing:.2em;color:var(--concrete);text-transform:uppercase}
+.thumbs{display:flex;gap:8px;padding:0 14px 14px;overflow-x:auto}
+.thumb{flex:0 0 auto;width:68px;border:1px solid var(--concrete-dim);background:var(--cell-2);padding:4px;display:grid;gap:4px;justify-items:center}
+.thumb img{width:58px;height:58px;object-fit:contain}
+.thumb span{font-size:8.5px;letter-spacing:.16em;color:var(--concrete)}
+.thumb[aria-current="true"]{border-color:var(--system-green)}
+.thumb[aria-current="true"] span{color:var(--system-green)}
+
+.bay-right{padding:22px 22px 24px;display:grid;gap:18px;align-content:start;min-width:0}
+.bay-right .name{font-size:clamp(40px,4.6vw,60px);overflow-wrap:anywhere}
+.row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.label{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--concrete);margin:0 0 8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{min-width:48px;font-size:12px;letter-spacing:.16em;font-weight:700;text-transform:uppercase;padding:10px 12px;border:1px solid var(--concrete-dim);color:var(--bone);background:var(--cell-2)}
+.pill:hover{border-color:var(--concrete)}
+.pill[aria-checked="true"]{border-color:var(--system-green);color:var(--system-green);box-shadow:inset 0 0 0 1px var(--system-green)}
+.pill[disabled]{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+.swatch{display:inline-block;width:12px;height:12px;border:1px solid rgba(216,210,196,.4);margin-right:8px;vertical-align:-1px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:11px;letter-spacing:.14em;color:var(--concrete);line-height:1.8;margin:0}
+.note.ok{color:var(--system-green)} .note.err{color:var(--ministry-red)}
+.log{margin:0;padding:14px 0 0;border-top:1px dashed var(--concrete-dim);display:grid;gap:7px;list-style:none;font-size:11.5px;letter-spacing:.06em;line-height:1.6;color:#b9b3a6}
+.log li{display:grid;grid-template-columns:8ch 1fr;gap:10px}
+.log li::before{content:attr(data-k);color:var(--concrete);letter-spacing:.14em}
+
+.haul{width:min(520px,calc(100% - 32px));left:auto;right:max(16px,calc((100% - 1180px) / 2 + 16px));transform:none}
+.haul-list{list-style:none;margin:0;padding:0}
+.haul-item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--concrete-dim)}
+.haul-item img{width:64px;height:64px;object-fit:contain;background:var(--cell-2)}
+.haul-item h3{font-family:var(--stencil);font-weight:900;font-size:22px;margin:0;letter-spacing:.02em}
+.haul-item p{margin:2px 0 0;font-size:10.5px;letter-spacing:.18em;color:var(--concrete);text-transform:uppercase}
+.haul-item .right{display:grid;justify-items:end;gap:6px}
+.qty{display:flex;align-items:center;border:1px solid var(--concrete-dim)}
+.qty button{width:26px;height:26px;color:var(--bone)} .qty button:hover{color:var(--system-green)}
+.qty span{min-width:22px;text-align:center;font-family:var(--crt);font-size:18px}
+.haul-sum{padding:16px 14px;display:grid;gap:12px}
+.empty{padding:28px 14px;font-size:12px;letter-spacing:.18em;color:var(--concrete);text-transform:uppercase;text-align:center}
+.toast{position:absolute;z-index:120;left:50%;transform:translateX(-50%);background:var(--system-green);color:var(--black-signal);font-size:11px;font-weight:700;letter-spacing:.22em;padding:10px 14px;text-transform:uppercase}
+
+@media (max-width:860px){
+  .bay{grid-template-columns:1fr}
+  .bay-left{border-right:0;border-bottom:1px solid var(--concrete-dim)}
+  .hint{display:none}
+}
+@media (max-width:760px){
+  .head{grid-template-columns:minmax(0,1fr);gap:24px}
+  .dossier{border-left:0;padding-left:0;border-top:1px solid var(--concrete-dim);padding-top:18px}
+  .haul{right:16px;left:16px;width:auto}
+  .actions{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .float,.floor-shadow,.beam,.ticker span,.rec i{animation:none}
+  .ticker span{padding-left:0}
+  .beam{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="strip">
+    <span class="rec"><i></i>EVIDENCE CAM 04 // RECORDING</span>
+    <span>LOCKER <b class="green">9-B</b></span>
+    <span>SYS <b class="green" id="clock">--:--:--</b></span>
+    <span class="spacer"></span>
+    <button class="haul-btn" id="haulBtn" type="button" aria-label="Open your haul">HAUL <span class="n" id="haulCount">0</span></button>
+  </div>
+  <div class="ticker" aria-hidden="true"><span>SEIZED IN RAIDS ON UNLICENSED LISTENING CELLS &nbsp;×&nbsp; POSSESSION OF NOISE GUARDIAN ISSUE IS A CLASS-3 SONIC OFFENCE &nbsp;×&nbsp; REPORT ALL WEARERS TO THE MINISTRY OF SILENCE &nbsp;×&nbsp; DO NOT ENGAGE &nbsp;×&nbsp; PROTECT THE SIGNAL</span></div>
+
+  <header class="head">
+    <div>
+      <span class="stamp">SEIZED GOODS</span>
+      <h1>CONTRABAND</h1>
+      <p class="lede">Noise Guardian issue gear. Each piece is stitched in a <em>safehouse</em> and smuggled out to you.</p>
+    </div>
+    <dl class="dossier">
+      <div><dt>Exhibits</dt><dd id="count">05</dd></div>
+      <div><dt>Origin</dt><dd class="green">BONAM</dd></div>
+      <div><dt>Classification</dt><dd class="red">ILLEGAL APPAREL</dd></div>
+      <div><dt>Production</dt><dd>EMBROIDERED</dd></div>
+      <div><dt>Transit</dt><dd>SHIPS WORLDWIDE</dd></div>
+    </dl>
+  </header>
+
+  <main class="grid" id="grid" aria-label="Exhibits"></main>
+
+  <footer class="foot">
+    <span>Select an exhibit to inspect it</span>
+    <span>Secure checkout · Ships worldwide</span>
+    <span class="green">PROTECT THE SIGNAL</span>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+
+<section class="panel" id="bay" role="dialog" aria-modal="true" aria-labelledby="bayName" hidden>
+  <div class="panel-top"><span id="bayCode">INSPECTION BAY</span><button class="x" id="bayClose" type="button">CLOSE ✕</button></div>
+  <div class="bay" id="bayGrid">
+    <div class="bay-left">
+      <div class="stage" id="bayStage" tabindex="0" aria-label="Product viewer. Drag or use arrow keys to rotate.">
+        <div class="reticle"></div>
+        <span class="mode" id="bayMode">VISIBLE</span>
+        <div class="floor-shadow"></div>
+        <div class="float"><div class="tt" id="bayTT"></div></div>
+        <div class="beam"></div>
+        <div class="loupe" id="loupe" hidden></div>
+        <div class="readout" id="bayReadout">VIEW --/--<br>--</div>
+      </div>
+      <div class="tools">
+        <button class="tool" id="tRotate" type="button" aria-pressed="true">ROTATE</button>
+        <button class="tool" id="tLoupe" type="button" aria-pressed="false">LOUPE</button>
+        <button class="tool" id="tXray" type="button" aria-pressed="false">X-RAY</button>
+        <span class="hint" id="hint">Drag to rotate</span>
+      </div>
+      <div class="thumbs" id="thumbs" role="tablist" aria-label="Views"></div>
+    </div>
+    <div class="bay-right">
+      <div>
+        <p class="label" id="bayExhibit">EXHIBIT</p>
+        <h2 class="name" id="bayName">—</h2>
+      </div>
+      <div class="row"><span class="price" id="bayPrice">£—</span><span class="note">Secure checkout · Ships worldwide</span></div>
+      <div id="optWrap"></div>
+      <div class="actions">
+        <button class="btn" id="addBtn" type="button">ADD TO HAUL</button>
+        <button class="btn solid" id="buyBtn" type="button">ACQUIRE NOW →</button>
+      </div>
+      <p class="note" id="bayNote" aria-live="polite"></p>
+      <ul class="log" id="bayLog"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="panel haul" id="haul" role="dialog" aria-modal="true" aria-label="Your haul" hidden>
+  <div class="panel-top"><span>YOUR HAUL</span><button class="x" id="haulClose" type="button">CLOSE ✕</button></div>
+  <ul class="haul-list" id="haulList"></ul>
+  <div class="haul-sum" id="haulSum">
+    <div class="row"><span class="label" style="margin:0">Subtotal</span><span class="price" id="haulTotal">£0</span></div>
+    <p class="note">Shipping is worked out at checkout from your address.</p>
+    <button class="btn solid" id="checkoutBtn" type="button">SMUGGLE OUT · CHECKOUT →</button>
+    <p class="note" id="haulNote" aria-live="polite"></p>
+  </div>
+</section>
+
+<script>
+/* ============ CONFIG ============ */
+const CONFIG = {
+  clientId: '1abd3889-a195-40ce-876b-946df12ebe33',      // Wix Headless client (public, visitor-only)
+  storesAppId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',   // Wix Stores catalog
+  shopUrl: 'https://www.bonamibonami.com/contraband',          // where "continue browsing" on checkout returns to
+  api: 'https://www.wixapis.com'
+};
+const NIL = '00000000-0000-0000-0000-000000000000';
+
+/* ============ EXHIBITS ============ */
+const I = p => `img/${p}.webp`;
+const PRODUCTS = [
+  { id:'3c699c1c-a109-49ae-b17e-0bab93b9a7a3', code:'NG-01', name:'NG HOODIE', price:60, dir:1,
+    spec:'Embroidered chest + sleeve · Printed back · S–XL',
+    views:{ _:[['FRONT','hoodie/front'],['SIDE','hoodie/side-a'],['REAR','hoodie/back'],['SIDE','hoodie/side-b']] },
+    options:[{ name:'Size', values:['S','M','L','XL'] }],
+    variants:{ 'S':'77856ecc-a4a0-4bdb-b2b8-a0e00a87b7e8','M':'ddd34a0c-4eb6-4b9e-a8be-7d54336894fe','L':'6d555d42-d5ab-4618-a21f-ea04a9849f71','XL':'28126871-4031-4cb7-88e2-a876dc29cf36' },
+    log:[['CUT','Premium pullover hoodie, 3-panel hood, flat drawstrings'],['FABRIC','100% cotton face · 65% ring-spun cotton / 35% polyester'],['MARKS','Embroidered BONAM chest + sleeve sigil · printed back'],['PKT','Front pouch pocket']] },
+  { id:'fd965237-afe6-4722-bed0-1c2091b9d78f', code:'NG-02', name:'NG WINDBREAKER', price:35, dir:1,
+    spec:'Embroidered · Black / Forest green · S–XL',
+    views:{ 'Black':[['FRONT','windbreaker-black/front'],['REAR','windbreaker-black/back']], 'Forest Green':[['FRONT','windbreaker-green/front'],['REAR','windbreaker-green/back']] },
+    macro:{ 'Black':['FABRIC','windbreaker-black/fabric'], 'Forest Green':['FABRIC','windbreaker-green/fabric'] },
+    colorOption:'Color', swatch:{ 'Black':'#141414', 'Forest Green':'#1f3a2a' },
+    options:[{ name:'Color', values:['Black','Forest Green'] },{ name:'Size', values:['S','M','L','XL'] }],
+    variants:{ 'Black|S':'42fdc0f3-7488-48c9-b64b-926ddd3f5afa','Black|M':'51af2817-515c-4041-9ef6-81e8d3d41eec','Black|L':'517de49c-8fb8-4ebf-8e9e-aeebecaa82c8','Black|XL':'2fb9da87-67f6-492e-943f-9e8fe9b6ffe5',
+      'Forest Green|S':'a9f19f14-0cfc-4ad8-a95f-db27d47eff64','Forest Green|M':'443a9241-02a6-4508-8ee5-2a163c6a24c3','Forest Green|L':'40f21dd6-35df-46c8-b388-1d9e02ea1c40','Forest Green|XL':'06da6073-2414-41ac-8a84-4d03a709c573' },
+    log:[['CUT','Lightweight zip windbreaker, regular fit, elastic cuffs + hem'],['FABRIC','100% polyamide · water-repellent · 202 g/m²'],['MARKS','Embroidered BONAM chest + rear sigils'],['PKT','2 zipped pockets']] },
+  { id:'bd465489-6c2d-4730-a60e-8b23e767b4d5', code:'NG-03', name:'NG TEE', price:20, dir:1,
+    spec:'Embroidered · S–XL',
+    views:{ _:[['FRONT','tee/front'],['REAR','tee/back']] },
+    options:[{ name:'Size', values:['S','M','L','XL'] }],
+    variants:{ 'S':'221dc5ee-26e4-4f42-83c3-eb5017901a97','M':'b0109ade-7bac-4d83-8c72-c434ed76608b','L':'6d04ada6-dbd9-44b3-af16-84705e203d87','XL':'760e71da-86b2-42f7-9695-5fd48a6e5aa8' },
+    log:[['CUT','Classic tee, structured fit'],['FABRIC','100% cotton · 170–180 g/m²'],['MARKS','Embroidered BONAM chest'],['BUILD','Taped neck + shoulders, double-seam hems']] },
+  { id:'0ddd8465-795d-414a-88c8-84b246dfe5c4', code:'NG-04', name:'NG CAP', price:25, dir:-1,
+    spec:'Embroidered · Distressed · One size',
+    views:{ _:[['FRONT','cap/front'],['3/4 L','cap/front-l'],['SIDE L','cap/side-l'],['REAR','cap/back'],['SIDE R','cap/side-r'],['3/4 R','cap/front-r']] },
+    extra:['UNDER','cap/detail'],
+    options:[], variants:{ '':NIL },
+    log:[['CUT','6-panel unstructured dad cap, low profile'],['FABRIC','100% pre-shrunk cotton twill, distressed brim + crown'],['MARKS','Embroidered BONAM + sigils'],['FIT','Adjustable hook-and-loop strap']] },
+  { id:'772ad230-69a7-4b23-80d3-7ee904e993f2', code:'NG-05', name:'NG BEANIE', price:30, dir:1,
+    spec:'Embroidered cuff · One size',
+    views:{ _:[['FRONT','beanie/front']] }, extra:['FLAT','beanie/angle'],
+    options:[], variants:{ '':NIL },
+    log:[['CUT','Cuffed knit beanie, 30 cm / 12″'],['FABRIC','100% Turbo Acrylic, hypoallergenic'],['MARKS','Embroidered BONAM + crew on the cuff'],['CARE','Hand wash']] },
+];
+const byId = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
+const viewsFor = (p, color) => p.views[color] || p.views._ || Object.values(p.views)[0];
+const money = n => '£' + (Math.round(n * 100) % 100 ? n.toFixed(2) : String(Math.round(n)));
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ TURNTABLE ============
+   Photographic turntable: each angle is a real product photo. Between photos the image drifts in 3D
+   and cross-fades into the next angle, so the product reads as slowly rotating. */
+class Turntable {
+  constructor(el, { dir = 1, speed = 0.36, onFrame } = {}) {
+    this.el = el; this.dir = dir; this.speed = speed; this.onFrame = onFrame;
+    this.pos = 0; this.auto = !reduceMotion; this.imgs = []; this.frozen = false; this.lastFrame = -1;
+  }
+  load(frames, macro) {
+    this.el.innerHTML = '';
+    this.frames = frames; this.macroIdx = macro ? frames.length - 1 : -1;
+    this.imgs = frames.map(([label, src], i) => {
+      const im = new Image(); im.src = src; im.alt = ''; im.decoding = 'async'; im.draggable = false;
+      if (i === this.macroIdx) im.className = 'macro';
+      this.el.appendChild(im); return im;
+    });
+    this.n = this.macroIdx >= 0 ? frames.length - 1 : frames.length;   // macro is not part of the rotation
+    this.pos = 0; this.showing = null; this.lastFrame = -1; this.render();
+    return Promise.race([new Promise(r => { const first = this.imgs[0]; if (first.complete) r(); else first.onload = first.onerror = r; }), new Promise(r => setTimeout(r, 4000))]);
+  }
+  current() { return this.showing != null ? this.showing : ((Math.round(this.pos) % this.n) + this.n) % this.n; }
+  show(i) { this.showing = i; this.render(); }
+  release() { if (this.showing != null && this.showing < this.n) this.pos = this.showing; this.showing = null; this.render(); }
+  step(dt) { if (this.auto && !this.frozen && this.showing == null) { this.pos += dt * this.speed; this.t = (this.t || 0) + dt; this.render(); } }
+  nudge(d) { this.showing = null; this.pos += d; this.render(); }
+  render() {
+    const n = this.n; if (!n) return;
+    if (this.showing != null) {
+      this.imgs.forEach((im, k) => { im.style.opacity = k === this.showing ? 1 : 0; im.style.transform = 'none'; });
+      this.emit(this.showing); return;
+    }
+    if (n === 1) {
+      const ang = this.frozen ? 0 : this.dir * Math.sin((this.t || 0) * 0.55) * 18;
+      this.imgs.forEach((im, k) => { im.style.opacity = k === 0 ? 1 : 0; im.style.transform = k === 0 ? `rotateY(${ang.toFixed(2)}deg)` : 'none'; });
+      this.emit(0); return;
+    }
+    const still = this.frozen;
+    const F = 0.16;
+    this.imgs.forEach((im, k) => {
+      if (k >= n) { im.style.opacity = 0; return; }
+      let phi = this.pos - k; phi = ((phi % n) + n) % n; if (phi > n - F) phi -= n;    // local phase of frame k
+      let op = 0;
+      if (phi >= -F && phi < 0) op = (phi + F) / F;
+      else if (phi >= 0 && phi <= 1 - F) op = 1;
+      else if (phi > 1 - F && phi < 1) op = (1 - phi) / F;
+      const ang = still ? 0 : this.dir * (phi - 0.39) * 32;
+      im.style.opacity = op.toFixed(3);
+      im.style.transform = op > 0 ? `rotateY(${ang.toFixed(2)}deg)` : 'none';
+    });
+    this.emit(this.current());
+  }
+  emit(i) { if (i !== this.lastFrame) { this.lastFrame = i; this.onFrame && this.onFrame(i); } }
+}
+
+/* one animation loop for every visible turntable */
+const active = new Set(); let last = performance.now();
+function loop(t) { const dt = Math.min(0.1, (t - last) / 1000); last = t; active.forEach(tt => tt.step(dt)); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { const tt = e.target._tt; if (!tt) return; e.isIntersecting ? active.add(tt) : active.delete(tt); }), { rootMargin: '120px' }) : null;
+
+/* ============ GRID ============ */
+const grid = document.getElementById('grid');
+PRODUCTS.forEach((p, n) => {
+  const views = viewsFor(p, p.colorOption ? p.options[0].values[0] : null);
+  const cell = document.createElement('article');
+  cell.className = 'cell';
+  cell.innerHTML = `
+    <div class="cell-top"><span>EXHIBIT ${p.code}</span><span class="seized">SEIZED</span></div>
+    <div class="stage" role="button" tabindex="0" aria-label="Inspect ${p.name}">
+      <div class="reticle"></div>
+      <span class="mode">${views.length + (p.extra ? 1 : 0) + (p.macro ? 1 : 0)} VIEWS</span>
+      <div class="floor-shadow" style="animation-delay:${-n * 1.2}s"></div>
+      <div class="float" style="animation-delay:${-n * 1.2}s"><div class="tt"></div></div>
+      <div class="beam" style="animation-delay:${-n * 1.15}s"></div>
+      <div class="loading">DECRYPTING…</div>
+      <div class="readout">VIEW <span class="vi">01</span>/${String(views.length).padStart(2, '0')}<br><span class="vl">${views[0][0]}</span></div>
+      <span class="inspect-tag">INSPECT ↗</span>
+    </div>
+    <div class="cell-body">
+      <h2 class="name">${p.name}</h2>
+      <p class="spec">${p.spec}</p>
+    </div>
+    <div class="cell-foot">
+      <span class="price" data-price="${p.id}">${money(p.price)}</span>
+      <button class="btn" type="button">INSPECT ↗</button>
+    </div>`;
+  grid.appendChild(cell);
+  const stage = cell.querySelector('.stage');
+  const vi = cell.querySelector('.vi'), vl = cell.querySelector('.vl');
+  const tt = new Turntable(cell.querySelector('.tt'), { dir: p.dir, speed: views.length > 2 ? 0.34 : 0.27,
+    onFrame: i => { vi.textContent = String(i + 1).padStart(2, '0'); vl.textContent = views[i][0]; } });
+  tt.load(views.map(([l, s]) => [l, I(s)])).then(() => cell.querySelector('.loading').remove());
+  tt.pos = (n * 0.37) % views.length; tt.render();
+  stage._tt = tt; io ? io.observe(stage) : active.add(tt);
+  const open = () => openBay(p, stage);
+  stage.addEventListener('click', open);
+  stage.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  cell.querySelector('.cell-foot .btn').addEventListener('click', () => openBay(p, stage));
+});
+
+/* ============ anchored panels (stay in view inside a tall embed) ============ */
+const scrim = document.getElementById('scrim');
+let lastFocus = null;
+function anchorTop(r) {
+  const vh = Math.min(window.innerHeight, 900);
+  const y = window.scrollY + Math.max(12, Math.min(r.top - 40, r.top + r.height / 2 - vh / 2));
+  return Math.max(12, y);
+}
+function showPanel(panel, anchorEl, rect) {
+  const ae = document.activeElement; if (!(ae && (bay.contains(ae) || haul.contains(ae)))) lastFocus = ae;
+  scrim.style.height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) + 'px';
+  scrim.hidden = false; panel.hidden = false;
+  let top = anchorTop(rect || anchorEl.getBoundingClientRect());
+  const maxTop = Math.max(12, document.documentElement.scrollHeight - panel.offsetHeight - 12);
+  panel.style.top = Math.min(top, maxTop) + 'px';
+  scrim.style.height = Math.max(document.documentElement.scrollHeight, top + panel.offsetHeight + 24) + 'px';
+  const r = panel.getBoundingClientRect();
+  if (r.top < 0 || r.top > window.innerHeight - 80) panel.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+  panel.querySelector('.x').focus({ preventScroll: true });
+}
+function hidePanels() {
+  [bay, haul].forEach(p => p.hidden = true); scrim.hidden = true;
+  if (bayTT) { active.delete(bayTT); }
+  if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+}
+scrim.addEventListener('click', hidePanels);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !scrim.hidden) hidePanels(); });
+
+/* ============ INSPECTION BAY ============ */
+const bay = document.getElementById('bay'), bayStage = document.getElementById('bayStage');
+const bayTTel = document.getElementById('bayTT'), loupe = document.getElementById('loupe');
+const thumbs = document.getElementById('thumbs'), optWrap = document.getElementById('optWrap');
+const bayNote = document.getElementById('bayNote');
+let bayTT = null, bayP = null, sel = {}, mode = 'rotate', frames = [];
+document.getElementById('bayClose').addEventListener('click', hidePanels);
+
+function openBay(p, anchorEl) {
+  bayP = p; sel = {};
+  p.options.forEach(o => { sel[o.name] = o.name === 'Size' ? null : o.values[0]; });
+  document.getElementById('bayCode').textContent = `INSPECTION BAY // EXHIBIT ${p.code}`;
+  document.getElementById('bayExhibit').textContent = `EXHIBIT ${p.code} · SEIZED`;
+  document.getElementById('bayName').textContent = p.name;
+  document.getElementById('bayPrice').textContent = money(p.price);
+  document.getElementById('bayLog').innerHTML = p.log.map(([k, v]) => `<li data-k="${k}">${v}</li>`).join('');
+  bayNote.textContent = ''; bayNote.className = 'note';
+  renderOptions(); loadBayViews();
+  setMode('rotate'); setXray(false);
+  showPanel(bay, anchorEl);
+}
+function loadBayViews() {
+  const p = bayP, color = p.colorOption ? sel[p.colorOption] : null;
+  frames = viewsFor(p, color).slice();
+  const macro = p.macro && p.macro[color];
+  if (p.extra) frames.push(p.extra);
+  if (macro) frames.push(macro);
+  const rot = viewsFor(p, color).length;
+  if (!bayTT) {
+    bayTT = new Turntable(bayTTel, { dir: p.dir, speed: 0.4, onFrame: syncBayFrame });
+    bayStage._tt = bayTT;
+  }
+  bayTT.dir = p.dir; bayTT.speed = rot > 2 ? 0.4 : 0.3; bayTT.auto = !reduceMotion;
+  // extra (cap underside) behaves like a still; macro (fabric) fills the stage
+  bayTT.load(frames.map(([l, s]) => [l, I(s)]), !!macro);
+  bayTT.n = rot; bayTT.render();
+  active.add(bayTT);
+  thumbs.innerHTML = frames.map(([l, s], i) => `<button class="thumb" type="button" role="tab" data-i="${i}" aria-current="${i === 0}"><img src="${I(s)}" alt=""><span>${l}</span></button>`).join('');
+  thumbs.querySelectorAll('.thumb').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.i;
+    if (i < bayTT.n) { bayTT.showing = null; bayTT.pos = i; bayTT.auto = false; bayTT.render(); }
+    else bayTT.show(i);
+  }));
+  syncBayFrame(0);
+}
+function syncBayFrame(i) {
+  const total = frames.length, f = frames[i] || frames[0];
+  document.getElementById('bayReadout').innerHTML = `VIEW ${String(i + 1).padStart(2, '0')}/${String(total).padStart(2, '0')}<br>${f[0]}`;
+  thumbs.querySelectorAll('.thumb').forEach(b => b.setAttribute('aria-current', String(+b.dataset.i === i)));
+  const im = bayTT && bayTT.imgs[i]; bayStage.classList.toggle('macro-on', !!(im && im.classList.contains('macro')));
+}
+function renderOptions() {
+  const p = bayP;
+  optWrap.innerHTML = p.options.map(o => `
+    <div style="margin-bottom:14px">
+      <p class="label">${o.name === 'Color' ? 'Colour' : o.name}${o.name === 'Size' ? ' <span id="sizeWarn" class="red"></span>' : ''}</p>
+      <div class="pills" role="radiogroup" aria-label="${o.name}">
+        ${o.values.map(v => `<button class="pill" type="button" role="radio" data-o="${o.name}" data-v="${v}" aria-checked="${sel[o.name] === v}">${p.swatch && o.name === 'Color' ? `<span class="swatch" style="background:${p.swatch[v]}"></span>` : ''}${v}</button>`).join('')}
+      </div>
+    </div>`).join('') || `<p class="label">One size</p>`;
+  optWrap.querySelectorAll('.pill').forEach(b => b.addEventListener('click', () => {
+    sel[b.dataset.o] = b.dataset.v;
+    optWrap.querySelectorAll(`.pill[data-o="${b.dataset.o}"]`).forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    if (b.dataset.o === p.colorOption) loadBayViews();
+    const w = document.getElementById('sizeWarn'); if (w) w.textContent = '';
+  }));
+  applyStock();
+}
+function variantFor(p, s) {
+  const key = p.options.map(o => s[o.name]).join('|');
+  return p.variants[key];
+}
+function ready() {
+  const missing = bayP.options.find(o => !sel[o.name]);
+  if (missing) { const w = document.getElementById('sizeWarn'); if (w) w.textContent = '← PICK ONE'; bayNote.className = 'note err'; bayNote.textContent = `Choose a ${missing.name.toLowerCase()} first.`; return null; }
+  const v = variantFor(bayP, sel);
+  if (!v) { bayNote.className = 'note err'; bayNote.textContent = 'That combination is unavailable.'; return null; }
+  return { pid: bayP.id, variantId: v, opts: { ...sel } };
+}
+document.getElementById('addBtn').addEventListener('click', () => {
+  const it = ready(); if (!it) return;
+  addToHaul(it);
+  bayNote.className = 'note ok';
+  bayNote.innerHTML = `Added to your haul. <button class="x" type="button" id="goHaul" style="margin-left:8px">VIEW HAUL</button>`;
+  document.getElementById('goHaul').addEventListener('click', () => openHaul(document.getElementById('addBtn')));
+});
+document.getElementById('buyBtn').addEventListener('click', () => {
+  const it = ready(); if (!it) return;
+  addToHaul(it);
+  checkout(bayNote);
+});
+
+/* modes: rotate / loupe / x-ray */
+const tRotate = document.getElementById('tRotate'), tLoupe = document.getElementById('tLoupe'), tXray = document.getElementById('tXray');
+const bayGrid = document.getElementById('bayGrid'), hint = document.getElementById('hint');
+function setMode(m) {
+  mode = m; tRotate.setAttribute('aria-pressed', String(m === 'rotate')); tLoupe.setAttribute('aria-pressed', String(m === 'loupe'));
+  bayGrid.classList.toggle('loupe-on', m === 'loupe');
+  hint.textContent = m === 'loupe' ? 'Move over the item to magnify' : 'Drag to rotate';
+  if (!bayTT) return;
+  if (m === 'loupe') { bayTT.frozen = true; if (bayTT.showing == null) bayTT.show(bayTT.current()); }
+  else { bayTT.frozen = false; loupe.hidden = true; if (bayTT.showing != null && bayTT.showing < bayTT.n) bayTT.release(); }
+}
+function setXray(on) { bay.classList.toggle('xray', on); tXray.setAttribute('aria-pressed', String(on)); document.getElementById('bayMode').textContent = on ? 'X-RAY' : 'VISIBLE'; }
+tRotate.addEventListener('click', () => setMode('rotate'));
+tLoupe.addEventListener('click', () => setMode(mode === 'loupe' ? 'rotate' : 'loupe'));
+tXray.addEventListener('click', () => setXray(!bay.classList.contains('xray')));
+
+/* drag to rotate */
+let drag = null;
+bayStage.addEventListener('pointerdown', e => {
+  if (mode !== 'rotate' || !bayTT) return;
+  if (bayTT.showing != null && bayTT.showing >= bayTT.n) bayTT.release();
+  drag = { x: e.clientX, pos: bayTT.pos, moved: false }; bayTT.auto = false; bayTT.showing = null;
+  bayStage.setPointerCapture(e.pointerId); bayStage.classList.add('dragging');
+});
+bayStage.addEventListener('pointermove', e => {
+  if (drag) {
+    const dx = e.clientX - drag.x; if (Math.abs(dx) > 3) drag.moved = true;
+    bayTT.pos = drag.pos - bayTT.dir * dx / Math.max(90, bayStage.clientWidth / (bayTT.n > 2 ? 3.2 : 2.2)); bayTT.render();
+  } else if (mode === 'loupe') moveLoupe(e);
+});
+const endDrag = () => { if (!drag) return; drag = null; bayStage.classList.remove('dragging'); bayTT.pos = Math.round(bayTT.pos); bayTT.render(); };
+bayStage.addEventListener('pointerup', endDrag); bayStage.addEventListener('pointercancel', endDrag);
+bayStage.addEventListener('pointerleave', () => { if (mode === 'loupe') loupe.hidden = true; });
+bayStage.addEventListener('pointerdown', e => { if (mode === 'loupe') { moveLoupe(e); bayStage.setPointerCapture(e.pointerId); } });
+bayStage.addEventListener('keydown', e => {
+  if (!bayTT) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); bayTT.auto = false; bayTT.showing = null; bayTT.pos = Math.round(bayTT.pos) + (e.key === 'ArrowRight' ? 1 : -1); bayTT.render(); }
+});
+function moveLoupe(e) {
+  const r = bayStage.getBoundingClientRect(), fr = bayTTel.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  const im = bayTT.imgs[bayTT.current()]; if (!im) return;
+  const Z = 2.6, isMacro = im.classList.contains('macro');
+  const box = isMacro ? r : fr;
+  const bw = box.width * Z, bh = box.height * Z;
+  const lx = (e.clientX - box.left) * Z, ly = (e.clientY - box.top) * Z;
+  const L = loupe.offsetWidth || r.width * 0.44;
+  loupe.hidden = false;
+  loupe.style.left = x + 'px'; loupe.style.top = y + 'px';
+  loupe.style.backgroundImage = `url("${im.src}")`;
+  loupe.style.backgroundSize = isMacro ? `${bw}px ${bh}px` : `${bw}px ${bh}px`;
+  loupe.style.backgroundPosition = `${L / 2 - lx}px ${L / 2 - ly}px`;
+  loupe.style.filter = bay.classList.contains('xray') ? 'grayscale(1) brightness(3.4) contrast(1.5) sepia(1) hue-rotate(100deg) saturate(3)' : 'none';
+}
+
+/* ============ HAUL (cart) ============ */
+const HKEY = 'bonam-haul-v1';
+let haulItems = [];
+try { haulItems = JSON.parse(localStorage.getItem(HKEY) || '[]').filter(i => byId[i.pid]); } catch (e) { haulItems = []; }
+const saveHaul = () => { try { localStorage.setItem(HKEY, JSON.stringify(haulItems)); } catch (e) {} updateCount(); };
+function addToHaul(it) {
+  const ex = haulItems.find(h => h.pid === it.pid && h.variantId === it.variantId);
+  ex ? ex.qty++ : haulItems.push({ ...it, qty: 1 });
+  saveHaul(); toast('ADDED TO HAUL');
+}
+function updateCount() { document.getElementById('haulCount').textContent = haulItems.reduce((a, b) => a + b.qty, 0); }
+const haul = document.getElementById('haul');
+document.getElementById('haulBtn').addEventListener('click', e => openHaul(e.currentTarget));
+document.getElementById('haulClose').addEventListener('click', hidePanels);
+function openHaul(anchorEl) {
+  const rect = anchorEl.getBoundingClientRect();
+  bay.hidden = true; if (bayTT) active.delete(bayTT);
+  renderHaul(); document.getElementById('haulNote').textContent = '';
+  showPanel(haul, anchorEl, rect);
+}
+function renderHaul() {
+  const list = document.getElementById('haulList');
+  if (!haulItems.length) {
+    list.innerHTML = `<li class="empty">Your haul is empty. Inspect an exhibit to add it.</li>`;
+    document.getElementById('haulSum').hidden = true; return;
+  }
+  document.getElementById('haulSum').hidden = false;
+  list.innerHTML = haulItems.map((h, i) => {
+    const p = byId[h.pid], v = viewsFor(p, h.opts && h.opts.Color)[0][1];
+    const det = Object.entries(h.opts || {}).map(([k, v]) => v).join(' · ') || 'One size';
+    return `<li class="haul-item"><img src="${I(v)}" alt=""><div><h3>${p.name}</h3><p>${det}</p></div>
+      <div class="right"><span class="price" style="font-size:24px">${money(p.price * h.qty)}</span>
+      <div class="qty"><button type="button" data-i="${i}" data-d="-1" aria-label="One fewer">−</button><span>${h.qty}</span><button type="button" data-i="${i}" data-d="1" aria-label="One more">+</button></div></div></li>`;
+  }).join('');
+  list.querySelectorAll('.qty button').forEach(b => b.addEventListener('click', () => {
+    const h = haulItems[+b.dataset.i]; h.qty += +b.dataset.d;
+    if (h.qty <= 0) haulItems.splice(+b.dataset.i, 1);
+    saveHaul(); renderHaul();
+  }));
+  document.getElementById('haulTotal').textContent = money(haulItems.reduce((a, h) => a + byId[h.pid].price * h.qty, 0));
+}
+document.getElementById('checkoutBtn').addEventListener('click', () => checkout(document.getElementById('haulNote')));
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  t.style.top = (window.scrollY + 70) + 'px'; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1600);
+}
+
+/* ============ WIX: live prices + checkout ============ */
+async function token() {
+  const r = await fetch(`${CONFIG.api}/oauth2/token`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ clientId: CONFIG.clientId, grantType: 'anonymous' }) });
+  if (!r.ok) throw new Error('token ' + r.status);
+  return (await r.json()).access_token;
+}
+let stock = {};
+async function syncLive() {
+  try {
+    const tok = await token();
+    const r = await fetch(`${CONFIG.api}/stores-reader/v1/products/query`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: tok },
+      body: JSON.stringify({ query: { paging: { limit: 100 } }, includeVariants: true }) });
+    if (!r.ok) return;
+    const { products } = await r.json();
+    products.forEach(w => {
+      const p = byId[w.id]; if (!p) return;
+      if (w.priceData && w.priceData.price) { p.price = w.priceData.price; document.querySelectorAll(`[data-price="${p.id}"]`).forEach(e => e.textContent = money(p.price)); }
+      (w.variants || []).forEach(v => {
+        const key = p.options.map(o => (v.choices || {})[o.name]).join('|');
+        if (v.id) p.variants[key] = v.id;
+        stock[v.id] = !(v.stock && v.stock.inStock === false) && !(v.variant && v.variant.visible === false);
+      });
+    });
+    if (!bay.hidden) { document.getElementById('bayPrice').textContent = money(bayP.price); applyStock(); }
+  } catch (e) { /* keep built-in prices */ }
+}
+function applyStock() {
+  if (!bayP) return;
+  optWrap.querySelectorAll('.pill[data-o="Size"]').forEach(b => {
+    const s = { ...sel, Size: b.dataset.v }; const v = variantFor(bayP, s);
+    const off = v && stock[v] === false; b.disabled = !!off; b.title = off ? 'Out of stock' : '';
+    if (off && sel.Size === b.dataset.v) { sel.Size = null; b.setAttribute('aria-checked', 'false'); }
+  });
+}
+syncLive();
+
+async function checkout(noteEl) {
+  if (!haulItems.length) return;
+  const btns = [document.getElementById('checkoutBtn'), document.getElementById('buyBtn')];
+  btns.forEach(b => b.disabled = true);
+  noteEl.className = 'note ok'; noteEl.textContent = 'Opening a secure channel…';
+  try {
+    const tok = await token();
+    const H = { 'content-type': 'application/json', authorization: tok };
+    const lineItems = haulItems.map(h => ({ quantity: h.qty, catalogReference: { appId: CONFIG.storesAppId, catalogItemId: h.pid,
+      ...(h.variantId && h.variantId !== NIL ? { options: { variantId: h.variantId } } : {}) } }));
+    const c = await fetch(`${CONFIG.api}/ecom/v1/carts`, { method: 'POST', headers: H, body: JSON.stringify({ lineItems }) });
+    if (!c.ok) throw new Error('cart ' + c.status);
+    const cart = (await c.json()).cart;
+    const co = await fetch(`${CONFIG.api}/ecom/v1/carts/${cart.id}/create-checkout`, { method: 'POST', headers: H, body: JSON.stringify({ channelType: 'WEB' }) });
+    if (!co.ok) throw new Error('checkout ' + co.status);
+    const { checkoutId } = await co.json();
+    const rs = await fetch(`${CONFIG.api}/redirect-session/v1/redirect-session`, { method: 'POST', headers: H,
+      body: JSON.stringify({ ecomCheckout: { checkoutId }, callbacks: { postFlowUrl: CONFIG.shopUrl } }) });
+    if (!rs.ok) throw new Error('redirect ' + rs.status);
+    const url = (await rs.json()).redirectSession.fullUrl;
+    haulItems = []; saveHaul();
+    noteEl.innerHTML = `Channel open. <a class="btn solid" href="${url}" target="_top" rel="noopener" style="margin-top:10px">GO TO SECURE CHECKOUT →</a>`;
+    try { (window.top || window).location.href = url; } catch (e) { const w = window.open(url, '_blank', 'noopener'); }
+  } catch (e) {
+    noteEl.className = 'note err';
+    noteEl.textContent = 'Checkout could not open. Check your connection and try again.';
+  } finally { btns.forEach(b => b.disabled = false); }
+}
+
+/* clock + init */
+updateCount();
+const clock = document.getElementById('clock');
+setInterval(() => clock.textContent = new Date().toTimeString().slice(0, 8), 1000);
+clock.textContent = new Date().toTimeString().slice(0, 8);
+</script>
+</body>
+</html>

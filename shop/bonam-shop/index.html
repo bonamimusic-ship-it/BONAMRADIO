@@ -34,7 +34,7 @@ img{max-width:100%}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;
   background:repeating-linear-gradient(to bottom,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
 
-.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:1680px;margin:0 auto;padding-inline:clamp(16px,3.2vw,56px);padding-block:0 48px}
 
 /* status strip */
 .strip{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;padding-block:12px;border-bottom:1px solid var(--concrete-dim);
@@ -54,20 +54,21 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;
 @keyframes tick{to{transform:translateX(-100%)}}
 
 /* case file header */
-.head{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;padding-block:34px 26px;border-bottom:1px solid var(--concrete-dim)}
+.head{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:56px;padding-block:34px 26px;border-bottom:1px solid var(--concrete-dim)}
 .stamp{display:inline-block;font-family:var(--stencil);font-weight:700;letter-spacing:.2em;font-size:15px;color:var(--ministry-red);
   border:2px solid var(--ministry-red);padding:2px 10px;transform:rotate(-2deg);margin-bottom:8px}
-h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,11.5vw,128px);overflow-wrap:normal;word-break:keep-all;line-height:.86;margin:0;letter-spacing:.01em;
+h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,10vw,140px);overflow-wrap:normal;word-break:keep-all;line-height:.86;margin:0;letter-spacing:.01em;
   color:var(--bone);text-shadow:2px 0 0 rgba(190,24,38,.7),-2px 0 0 rgba(65,120,144,.7);text-wrap:balance}
 .lede{margin:18px 0 0;font-size:13px;line-height:2;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete);max-width:46ch}
 .lede em{font-style:normal;color:var(--system-green)}
-.dossier{margin:0;border-left:1px solid var(--concrete-dim);padding-left:24px;display:grid;gap:12px;align-content:start;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.dossier{margin:0;border-left:1px solid var(--concrete-dim);padding-left:28px;display:grid;gap:12px;align-content:start;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
 .dossier div{display:flex;justify-content:space-between;gap:12px}
 .dossier dt{color:var(--concrete)}
 .dossier dd{margin:0;text-align:right;font-weight:700}
 
 /* exhibits */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:20px;padding-block:28px 0}
+@media (min-width:1200px){.grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}}
 .cell{position:relative;background:var(--cell);border:1px solid var(--concrete-dim);display:flex;flex-direction:column;min-width:0;transition:border-color .2s}
 .cell:hover{border-color:var(--green-dim)}
 .cell-top,.cell-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase}
@@ -93,6 +94,8 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,11.5vw,128px)
 .inspect-tag{position:absolute;right:24px;bottom:22px;z-index:7;font-size:10px;letter-spacing:.24em;color:var(--black-signal);background:var(--system-green);padding:5px 8px;
   opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s;pointer-events:none}
 .cell:hover .inspect-tag,.cell .stage:focus-visible .inspect-tag{opacity:1;transform:none}
+.readout{transition:opacity .15s}
+@container (max-width:300px){.cell:hover .readout,.cell .stage:focus-visible .readout{opacity:0}}
 
 .floor-shadow{position:absolute;left:50%;bottom:10%;width:50%;height:7%;transform:translateX(-50%);border-radius:50%;
   background:radial-gradient(closest-side,rgba(0,0,0,.9),rgba(0,0,0,0));filter:blur(5px);animation:shadow 6s ease-in-out infinite;z-index:1;pointer-events:none}
@@ -120,7 +123,8 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,11.5vw,128px)
 @keyframes beam{0%{top:-22%}62%,100%{top:104%}}
 
 .cell-body{padding:16px 14px 6px;display:grid;gap:6px;border-top:1px solid var(--concrete-dim)}
-.name{font-family:var(--stencil);font-weight:900;font-size:40px;line-height:.95;letter-spacing:.02em;margin:0;text-wrap:balance}
+.cell{container-type:inline-size}
+.name{font-family:var(--stencil);font-weight:900;font-size:clamp(24px,14cqi,40px);line-height:.95;letter-spacing:.02em;margin:0;text-wrap:balance}
 .spec{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete);margin:0;line-height:1.7}
 .cell-foot{margin-top:auto;padding-top:14px;border-top:1px dashed var(--concrete-dim)}
 .price{font-family:var(--crt);font-size:30px;letter-spacing:.04em;color:var(--bone);font-variant-numeric:tabular-nums}
@@ -202,6 +206,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,11.5vw,128px)
 }
 @media (max-width:760px){
   .head{grid-template-columns:minmax(0,1fr);gap:24px}
+  h1{font-size:clamp(36px,11.5vw,88px)}
   .dossier{border-left:0;padding-left:0;border-top:1px solid var(--concrete-dim);padding-top:18px}
   .haul{right:16px;left:16px;width:auto}
   .actions{grid-template-columns:1fr}
@@ -710,33 +715,59 @@ function applyStock() {
 }
 syncLive();
 
+/* Wix checkout links carry a ONE-TIME session token: opening the same link twice
+   gives "Token already used". So every attempt mints a fresh link, a link is only
+   ever opened once, and the haul is only cleared once we are actually leaving. */
+async function checkoutUrl(items) {
+  const tok = await token();
+  const H = { 'content-type': 'application/json', authorization: tok };
+  const lineItems = items.map(h => ({ quantity: h.qty, catalogReference: { appId: CONFIG.storesAppId, catalogItemId: h.pid,
+    ...(h.variantId && h.variantId !== NIL ? { options: { variantId: h.variantId } } : {}) } }));
+  const c = await fetch(`${CONFIG.api}/ecom/v1/carts`, { method: 'POST', headers: H, body: JSON.stringify({ lineItems }) });
+  if (!c.ok) throw new Error('cart ' + c.status);
+  const cart = (await c.json()).cart;
+  const co = await fetch(`${CONFIG.api}/ecom/v1/carts/${cart.id}/create-checkout`, { method: 'POST', headers: H, body: JSON.stringify({ channelType: 'WEB' }) });
+  if (!co.ok) throw new Error('checkout ' + co.status);
+  const { checkoutId } = await co.json();
+  const rs = await fetch(`${CONFIG.api}/redirect-session/v1/redirect-session`, { method: 'POST', headers: H,
+    body: JSON.stringify({ ecomCheckout: { checkoutId }, callbacks: { postFlowUrl: CONFIG.shopUrl } }) });
+  if (!rs.ok) throw new Error('redirect ' + rs.status);
+  return (await rs.json()).redirectSession.fullUrl;
+}
+function go(url) {
+  // leave the Wix iframe for the real checkout; fall back to a new tab if top navigation is blocked
+  try { (window.top || window).location.href = url; return true; }
+  catch (e) { return !!window.open(url, '_blank', 'noopener'); }
+}
+let checkoutBusy = false;
+window.addEventListener('pagehide', () => { if (checkoutBusy) { haulItems = []; saveHaul(); } });
 async function checkout(noteEl) {
-  if (!haulItems.length) return;
+  if (!haulItems.length || checkoutBusy) return;
+  checkoutBusy = true;
+  const items = haulItems.map(h => ({ ...h }));
   const btns = [document.getElementById('checkoutBtn'), document.getElementById('buyBtn')];
-  btns.forEach(b => b.disabled = true);
+  btns.forEach(b => b && (b.disabled = true));
   noteEl.className = 'note ok'; noteEl.textContent = 'Opening a secure channel…';
   try {
-    const tok = await token();
-    const H = { 'content-type': 'application/json', authorization: tok };
-    const lineItems = haulItems.map(h => ({ quantity: h.qty, catalogReference: { appId: CONFIG.storesAppId, catalogItemId: h.pid,
-      ...(h.variantId && h.variantId !== NIL ? { options: { variantId: h.variantId } } : {}) } }));
-    const c = await fetch(`${CONFIG.api}/ecom/v1/carts`, { method: 'POST', headers: H, body: JSON.stringify({ lineItems }) });
-    if (!c.ok) throw new Error('cart ' + c.status);
-    const cart = (await c.json()).cart;
-    const co = await fetch(`${CONFIG.api}/ecom/v1/carts/${cart.id}/create-checkout`, { method: 'POST', headers: H, body: JSON.stringify({ channelType: 'WEB' }) });
-    if (!co.ok) throw new Error('checkout ' + co.status);
-    const { checkoutId } = await co.json();
-    const rs = await fetch(`${CONFIG.api}/redirect-session/v1/redirect-session`, { method: 'POST', headers: H,
-      body: JSON.stringify({ ecomCheckout: { checkoutId }, callbacks: { postFlowUrl: CONFIG.shopUrl } }) });
-    if (!rs.ok) throw new Error('redirect ' + rs.status);
-    const url = (await rs.json()).redirectSession.fullUrl;
-    haulItems = []; saveHaul();
-    noteEl.innerHTML = `Channel open. <a class="btn solid" href="${url}" target="_top" rel="noopener" style="margin-top:10px">GO TO SECURE CHECKOUT →</a>`;
-    try { (window.top || window).location.href = url; } catch (e) { const w = window.open(url, '_blank', 'noopener'); }
+    const url = await checkoutUrl(items);
+    noteEl.textContent = 'Channel open. Redirecting to secure checkout…';
+    go(url);
+    // Only if we are somehow still here a few seconds later, offer a retry that mints a NEW link.
+    setTimeout(() => {
+      if (document.visibilityState === 'hidden') return;
+      noteEl.innerHTML = 'Taking a while? <button type="button" class="btn solid" style="margin-top:10px">GO TO SECURE CHECKOUT →</button>';
+      noteEl.querySelector('button').addEventListener('click', async (ev) => {
+        const b = ev.currentTarget; b.disabled = true; b.textContent = 'OPENING…';
+        try { go(await checkoutUrl(items)); }
+        catch (e) { b.disabled = false; b.textContent = 'GO TO SECURE CHECKOUT →'; }
+      });
+    }, 6000);
   } catch (e) {
+    checkoutBusy = false;
     noteEl.className = 'note err';
     noteEl.textContent = 'Checkout could not open. Check your connection and try again.';
-  } finally { btns.forEach(b => b.disabled = false); }
+    btns.forEach(b => b && (b.disabled = false));
+  }
 }
 
 /* clock + init */

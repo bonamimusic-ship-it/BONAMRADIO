@@ -69,7 +69,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 .tag.g{color:var(--system-green);border-color:var(--green-dim)}
 .tag.r{color:var(--ministry-red);border:1px dashed var(--ministry-red)}
 .screen{position:relative;aspect-ratio:16/10;background:#000;overflow:hidden}
-.screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.1) saturate(.85)}
+.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.1) saturate(.85)}
 .screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
   background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.6))}
 .reticle{position:absolute;inset:14px;pointer-events:none;z-index:6;opacity:.7;--c:var(--system-green);
@@ -106,13 +106,13 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 .rel-actions{display:flex;flex-wrap:wrap;gap:10px}
 
 /* channels */
-.channels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.channels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .ch{position:relative;display:flex;flex-direction:column;gap:10px;min-height:150px;padding:16px 16px 18px;background:var(--cell);border:1px solid var(--concrete-dim);
   text-decoration:none;transition:border-color .15s,background .15s}
 .ch:hover{border-color:var(--system-green);background:linear-gradient(180deg,rgba(38,210,150,.06),transparent 70%),var(--cell)}
 .ch .cn{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.22em;color:var(--concrete);text-transform:uppercase}
 .ch .cn b{color:var(--ministry-red);font-weight:500}
-.ch h3{margin:auto 0 0;font-family:var(--stencil);font-weight:900;font-size:clamp(30px,3vw,46px);line-height:.9;letter-spacing:.02em;color:var(--bone)}
+.ch h3{margin:auto 0 0;font-family:var(--stencil);font-weight:900;font-size:clamp(28px,2.6vw,42px);line-height:.9;letter-spacing:.02em;color:var(--bone)}
 .ch p{margin:0;font-size:11px;letter-spacing:.16em;line-height:1.7;text-transform:uppercase;color:var(--concrete)}
 .ch .arrow{position:absolute;right:16px;bottom:16px;font-family:var(--crt);font-size:24px;color:var(--system-green);opacity:0;transition:opacity .15s}
 .ch:hover .arrow{opacity:1}
@@ -163,6 +163,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
     <span>BONAMI BONAMI · UNLICENSED BROADCAST</span>
     <span class="spacer"></span>
     <nav class="navlinks" aria-label="Site">
+      <a href="https://www.bonamibonami.com/listen" target="_top">Music</a>
       <a href="https://www.bonamibonami.com/live" target="_top">Live</a>
       <a href="https://www.bonamibonami.com/music-videos" target="_top">Videos</a>
       <a href="https://www.bonamibonami.com/dj-sets" target="_top">DJ Sets</a>
@@ -170,22 +171,22 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
       <a href="https://www.bonamibonami.com/contraband" target="_top">Shop</a>
     </nav>
   </div>
-  <div class="ticker" aria-hidden="true"><span>NEW SIGNAL DETECTED ··· "GIVE YOU ALL" OUT NOW ··· STREAM IT ON BANDCAMP ··· KEEP THE RHYTHM ALIVE ··· BECOME A NOISE GUARDIAN ··· BONAM LIVE NOW BOOKING 2027 ··· THIS TRANSMISSION HAS NOT BEEN APPROVED ···</span></div>
+  <div class="ticker" aria-hidden="true"><span>NEW SIGNAL DETECTED ··· "GIVE YOU ALL" OUT NOW ··· STREAM IT ON BANDCAMP ··· KEEP THE RHYTHM ALIVE ··· BECOME A NOISE GUARDIAN ··· BONAM LIVE NOW BOOKING 2027 ··· ALL RELEASES NOW ON FILE: BONAMIBONAMI.COM/LISTEN ··· THIS TRANSMISSION HAS NOT BEEN APPROVED ···</span></div>
 
   <header class="hero">
     <div>
       <span class="stamp">SONIC DEALER</span>
       <h1>BONAM</h1>
-      <p class="lede"><a href="https://www.bonamibonami.com/noiseguardian" target="_top">There is a constant rhythm happening inside of all living beings. Our <em>heart beats the chest</em>, feet kick the ground and breaths brush the air.</a></p>
+      <p class="lede">Psychedelic dissociating <em>techno pop</em> for the masses. Broadcasting from London on an unlicensed frequency.</p>
       <div class="hero-actions">
         <a class="btn solid" href="https://bonam.bandcamp.com/track/give-you-all" target="_blank" rel="noopener">▶ Hear "Give You All"</a>
         <a class="btn" href="https://www.bonamibonami.com/live" target="_top">Book the live show</a>
       </div>
     </div>
     <div class="panel-box">
-      <div class="box-top"><span>FEED 01 · SECTOR: THE FOREST</span><span class="tags"><span class="tag g">SIGNAL OK</span><span class="tag r">UNREGISTERED</span></span></div>
+      <div class="box-top"><span>FEED 01 · SECTOR: UNKNOWN</span><span class="tags"><span class="tag g">SIGNAL OK</span><span class="tag r">UNREGISTERED</span></span></div>
       <div class="screen">
-        <img src="https://static.wixstatic.com/media/ffc593_50f54ba2b8594e98b0b3b8275b690b72~mv2.gif" alt="Pixel-art waterfall in a red forest">
+        <video autoplay muted loop playsinline preload="auto" poster="https://static.wixstatic.com/media/ffc593_50f54ba2b8594e98b0b3b8275b690b72~mv2.gif" src="https://video.wixstatic.com/video/ffc593_40d6cfea57454561bdbf9fb63b934a64/720p/mp4/file.mp4"></video>
         <div class="reticle"></div>
         <div class="corner"><i></i>LIVE</div>
         <div class="readout">CAM 01 · NOISE LEVEL: RISING<br>HEARTBEATS DETECTED: ∞</div>
@@ -221,17 +222,16 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
   </section>
 
   <section class="section">
-    <h2 class="sec-title"><span class="n">02.</span> FREQUENCIES <span class="aside">Tune in · 09 channels</span></h2>
+    <h2 class="sec-title"><span class="n">02.</span> FREQUENCIES <span class="aside">Tune in · 08 channels</span></h2>
     <div class="channels">
-      <a class="ch feat" href="https://www.bonamibonami.com/live" target="_top"><span class="cn"><b>CH-01</b><span>Booking 2027</span></span><h3>LIVE</h3><p>The fully live show. Footage, rig, bookings.</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/music-videos" target="_top"><span class="cn"><b>CH-02</b><span>Footage</span></span><h3>MUSIC VIDEOS</h3><p>Red/Blue · Moving On</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/dj-sets" target="_top"><span class="cn"><b>CH-03</b><span>Recordings</span></span><h3>DJ SETS</h3><p>Recorded sets from the decks.</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/bonamradio" target="_top"><span class="cn"><b>CH-04</b><span>On air</span></span><h3>PIRATE RADIO</h3><p>Tune into the unlicensed frequency.</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/contraband" target="_top"><span class="cn"><b>CH-05</b><span>Shop</span></span><h3>CONTRABAND</h3><p>Goods seized from the sonic dealer.</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/findbonam" target="_top"><span class="cn"><b>CH-06</b><span>Wanted</span></span><h3>FIND BONAM</h3><p>Last known whereabouts.</p><span class="arrow">→</span></a>
-      <a class="ch warn" href="https://www.bonamibonami.com/noiseguardian" target="_top"><span class="cn"><b>CH-07</b><span>Recruiting</span></span><h3>NOISE GUARDIAN</h3><p>Become one. Protect the rhythm.</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/manifesto" target="_top"><span class="cn"><b>CH-08</b><span>Document</span></span><h3>MANIFESTO</h3><p>What we stand for.</p><span class="arrow">→</span></a>
-      <a class="ch" href="https://www.bonamibonami.com/dontowethem" target="_top"><span class="cn"><b>CH-09</b><span>Classified</span></span><h3>DON'T OWE THEM</h3><p>Open at your own risk.</p><span class="arrow">→</span></a>
+      <a class="ch feat" href="https://www.bonamibonami.com/listen" target="_top"><span class="cn"><b>CH-01</b><span>Releases</span></span><h3>MUSIC</h3><p>Every release. Every platform.</p><span class="arrow">→</span></a>
+      <a class="ch" href="https://www.bonamibonami.com/live" target="_top"><span class="cn"><b>CH-02</b><span>Booking 2027</span></span><h3>LIVE</h3><p>The fully live show. Footage, rig, bookings.</p><span class="arrow">→</span></a>
+      <a class="ch" href="https://www.bonamibonami.com/music-videos" target="_top"><span class="cn"><b>CH-03</b><span>Footage</span></span><h3>MUSIC VIDEOS</h3><p>Red/Blue · Moving On</p><span class="arrow">→</span></a>
+      <a class="ch" href="https://www.bonamibonami.com/dj-sets" target="_top"><span class="cn"><b>CH-04</b><span>Recordings</span></span><h3>DJ SETS</h3><p>Recorded sets from the decks.</p><span class="arrow">→</span></a>
+      <a class="ch" href="https://www.bonamibonami.com/bonamradio" target="_top"><span class="cn"><b>CH-05</b><span>On air</span></span><h3>PIRATE RADIO</h3><p>Tune into the unlicensed frequency.</p><span class="arrow">→</span></a>
+      <a class="ch" href="https://www.bonamibonami.com/contraband" target="_top"><span class="cn"><b>CH-06</b><span>Shop</span></span><h3>CONTRABAND</h3><p>Goods seized from the sonic dealer.</p><span class="arrow">→</span></a>
+      <a class="ch" href="https://www.bonamibonami.com/findbonam" target="_top"><span class="cn"><b>CH-07</b><span>Wanted</span></span><h3>FIND BONAM</h3><p>Last known whereabouts.</p><span class="arrow">→</span></a>
+      <a class="ch warn" href="https://www.bonamibonami.com/noiseguardian" target="_top"><span class="cn"><b>CH-08</b><span>Recruiting</span></span><h3>NOISE GUARDIAN</h3><p>Become one. Protect the rhythm.</p><span class="arrow">→</span></a>
     </div>
   </section>
 

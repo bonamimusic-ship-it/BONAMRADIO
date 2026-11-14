@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BONAM Music</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500;700;800&family=VT323&display=swap">
+<style>
+:root{
+  --ministry-red:#BE1826; --red-dim:#6e0e16;
+  --system-green:#26D296; --green-dim:#0d6b4b;
+  --cold-cyan:#417890; --cyan-dim:#1f3d4a;
+  --concrete:#69706C; --concrete-dim:#2a2d2c;
+  --black-signal:#08080B; --cell:#0c0d10; --cell-2:#101216;
+  --bone:#d8d2c4; --amber:#e8a93a;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --crt:'VT323',ui-monospace,monospace;
+  --stencil:'Big Shoulders Stencil',Impact,'Arial Narrow',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--black-signal);color:var(--bone)}
+body{font-family:var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--system-green);outline-offset:3px}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.wrap{max-width:1680px;margin:0 auto;padding-inline:clamp(16px,3.2vw,56px);padding-block:0 40px}
+
+/* strip + ticker */
+.strip{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;padding-block:12px;border-bottom:1px solid var(--concrete-dim);
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.strip .spacer{flex:1}
+.rec{color:var(--ministry-red)}
+.rec i,.corner i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ministry-red);margin-right:8px;vertical-align:1px;animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.navlinks{display:flex;flex-wrap:wrap;gap:6px 18px}
+.navlinks a{text-decoration:none;color:var(--bone)}
+.navlinks a:hover{color:var(--system-green)}
+.ticker{overflow:hidden;border-bottom:1px solid var(--concrete-dim);white-space:nowrap;font-size:11px;letter-spacing:.24em;color:var(--ministry-red);padding-block:10px}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 40s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(24px,4vw,64px);padding-block:36px 32px;border-bottom:1px solid var(--concrete-dim);align-items:center}
+.stamp{display:inline-block;font-family:var(--stencil);font-weight:700;letter-spacing:.2em;font-size:15px;color:var(--ministry-red);
+  border:2px solid var(--ministry-red);padding:2px 10px;transform:rotate(-2deg);margin-bottom:10px}
+h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px);line-height:.82;margin:0;letter-spacing:.01em;
+  color:var(--bone);text-shadow:3px 0 0 rgba(190,24,38,.7),-3px 0 0 rgba(65,120,144,.7)}
+.lede{margin:22px 0 0;font-size:13px;line-height:2;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete);max-width:46ch}
+.lede a{text-decoration:none}
+.lede em{font-style:normal;color:var(--system-green)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--system-green);color:var(--system-green);
+  padding:12px 16px;font-size:11px;letter-spacing:.22em;font-weight:700;text-decoration:none;text-transform:uppercase}
+.btn:hover{background:var(--system-green);color:var(--black-signal)}
+.btn.solid{background:var(--system-green);color:var(--black-signal)}
+.btn.solid:hover{background:var(--bone);border-color:var(--bone)}
+.btn.red{border-color:var(--ministry-red);color:var(--ministry-red)}
+.btn.red:hover{background:var(--ministry-red);color:var(--bone)}
+
+.panel-box{background:var(--cell);border:1px solid var(--concrete-dim);min-width:0}
+.box-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--concrete-dim);
+  font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:10px;letter-spacing:.2em;padding:4px 8px;border:1px solid var(--concrete-dim);text-transform:uppercase}
+.tag.g{color:var(--system-green);border-color:var(--green-dim)}
+.tag.r{color:var(--ministry-red);border:1px dashed var(--ministry-red)}
+.screen{position:relative;aspect-ratio:16/10;background:#000;overflow:hidden}
+.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.1) saturate(.85)}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.6))}
+.reticle{position:absolute;inset:14px;pointer-events:none;z-index:6;opacity:.7;--c:var(--system-green);
+  background:
+    linear-gradient(var(--c),var(--c)) top left/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) top left/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) top right/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) top right/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) bottom left/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom right/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) bottom right/1px 18px no-repeat}
+.readout{position:absolute;left:26px;bottom:22px;z-index:7;font-family:var(--crt);font-size:20px;letter-spacing:.06em;color:var(--system-green);line-height:1.1;text-shadow:0 0 6px rgba(38,210,150,.5)}
+.corner{position:absolute;right:26px;top:22px;z-index:7;font-family:var(--crt);font-size:20px;color:var(--ministry-red);letter-spacing:.06em}
+.feed-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--concrete-dim);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+
+/* sections */
+.section{padding-block:34px 30px;border-bottom:1px solid var(--concrete-dim)}
+.sec-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:0 0 20px;font-family:var(--stencil);font-weight:900;font-size:clamp(26px,2.6vw,38px);letter-spacing:.03em}
+.sec-title .n{color:var(--ministry-red)}
+.sec-title .aside{margin-left:auto;font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.22em;color:var(--concrete);text-transform:uppercase}
+
+/* new release */
+.release{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr)}
+.cover{position:relative;border-right:1px solid var(--concrete-dim);background:#000}
+.cover img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.cover .stamp{position:absolute;left:16px;top:16px;background:rgba(8,8,11,.75);margin:0}
+.rel-body{padding:26px clamp(18px,3vw,40px);display:flex;flex-direction:column;gap:18px;min-width:0}
+.rel-kicker{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--system-green)}
+.rel-title{font-family:var(--stencil);font-weight:900;font-size:clamp(54px,7vw,112px);line-height:.85;margin:0;color:var(--bone);
+  text-shadow:2px 0 0 rgba(190,24,38,.7),-2px 0 0 rgba(65,120,144,.7)}
+.rel-dl{margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.rel-dl div{border-top:1px solid var(--concrete-dim);padding-top:10px}
+.rel-dl dt{color:var(--concrete);margin-bottom:4px}
+.rel-dl dd{margin:0;font-weight:700}
+.player{border:1px solid var(--concrete-dim);background:#333;max-width:700px}
+.player iframe{display:block;width:100%;height:120px;border:0}
+.rel-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+/* channels */
+.channels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.ch{position:relative;display:flex;flex-direction:column;gap:10px;min-height:150px;padding:16px 16px 18px;background:var(--cell);border:1px solid var(--concrete-dim);
+  text-decoration:none;transition:border-color .15s,background .15s}
+.ch:hover{border-color:var(--system-green);background:linear-gradient(180deg,rgba(38,210,150,.06),transparent 70%),var(--cell)}
+.ch .cn{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.22em;color:var(--concrete);text-transform:uppercase}
+.ch .cn b{color:var(--ministry-red);font-weight:500}
+.ch h3{margin:auto 0 0;font-family:var(--stencil);font-weight:900;font-size:clamp(28px,2.6vw,42px);line-height:.9;letter-spacing:.02em;color:var(--bone)}
+.ch p{margin:0;font-size:11px;letter-spacing:.16em;line-height:1.7;text-transform:uppercase;color:var(--concrete)}
+.ch .arrow{position:absolute;right:16px;bottom:16px;font-family:var(--crt);font-size:24px;color:var(--system-green);opacity:0;transition:opacity .15s}
+.ch:hover .arrow{opacity:1}
+.ch.feat{border-color:var(--green-dim)}
+.ch.feat h3{color:var(--system-green)}
+.ch.warn{border:1px dashed var(--ministry-red)}
+
+/* rhythm */
+.rhythm{border:1px solid var(--ministry-red);background:linear-gradient(180deg,rgba(190,24,38,.08),transparent 60%),var(--cell);padding:clamp(22px,4vw,48px);
+  display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;align-items:end}
+.rhythm blockquote{margin:0;font-family:var(--stencil);font-weight:700;font-size:clamp(28px,3.6vw,56px);line-height:1.02;letter-spacing:.01em;color:var(--bone)}
+.rhythm blockquote em{font-style:normal;color:var(--ministry-red)}
+.rhythm aside{font-size:11px;line-height:1.9;letter-spacing:.16em;text-transform:uppercase;color:var(--concrete);display:grid;gap:16px}
+.rhythm aside b{color:var(--ministry-red);font-weight:500}
+
+/* footer */
+.foot{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding-top:26px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.socials{display:flex;flex-wrap:wrap;gap:10px}
+.socials a{text-decoration:none;border:1px solid var(--concrete-dim);padding:9px 12px;color:var(--bone)}
+.socials a:hover{border-color:var(--system-green);color:var(--system-green)}
+.foot .mail a{color:var(--system-green);text-decoration:none}
+
+@media (max-width:1000px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .release{grid-template-columns:minmax(0,1fr)}
+  .cover{border-right:0;border-bottom:1px solid var(--concrete-dim)}
+  .channels{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rhythm{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:600px){
+  .strip .navlinks,.strip .spacer{display:none}
+  .channels{grid-template-columns:minmax(0,1fr)}
+  .ch{min-height:118px}
+  .rel-dl{grid-template-columns:1fr 1fr}
+  .foot{grid-template-columns:minmax(0,1fr)}
+  .readout,.corner{font-size:16px}
+  .readout{left:20px;bottom:16px}.corner{right:20px;top:16px}
+  .btn{flex:1 1 100%}
+}
+@media (prefers-reduced-motion:reduce){.ticker span,.rec i,.corner i{animation:none}}
+
+.mhead{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:48px;padding-block:34px 28px;border-bottom:1px solid var(--concrete-dim);align-items:end}
+.mhead h1{font-size:clamp(84px,16vw,260px)}
+.dossier{margin:0;border-left:1px solid var(--concrete-dim);padding-left:26px;display:grid;gap:12px;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase}
+.dossier div{display:flex;justify-content:space-between;gap:12px}
+.dossier dt{color:var(--concrete)} .dossier dd{margin:0;text-align:right;font-weight:700}
+.dossier dd.g{color:var(--system-green)} .dossier dd.r{color:var(--ministry-red)}
+.plats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.plat{display:flex;flex-direction:column;justify-content:space-between;gap:26px;min-height:128px;padding:14px 16px;border:1px solid var(--concrete-dim);background:var(--cell);text-decoration:none;transition:border-color .15s,background .15s}
+.plat:hover{border-color:var(--system-green);background:linear-gradient(180deg,rgba(38,210,150,.07),transparent 70%),var(--cell)}
+.plat .k{font-size:10px;letter-spacing:.22em;color:var(--concrete);text-transform:uppercase;display:flex;justify-content:space-between}
+.plat .k b{color:var(--ministry-red);font-weight:500}
+.plat strong{font-family:var(--stencil);font-weight:900;font-size:clamp(26px,2.4vw,38px);line-height:.9;color:var(--bone)}
+.plat.main{border-color:var(--green-dim)} .plat.main strong{color:var(--system-green)}
+.deck{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.bay{padding:16px;display:flex;flex-direction:column;gap:14px}
+.bay .now{font-family:var(--crt);font-size:26px;color:var(--system-green);letter-spacing:.04em;line-height:1;text-shadow:0 0 6px rgba(38,210,150,.45)}
+.bay .now span{color:var(--ministry-red)}
+.bay iframe{display:block;width:100%;max-width:700px;height:120px;border:0;background:#333}
+.bay p{margin:0;font-size:10.5px;letter-spacing:.2em;line-height:1.8;text-transform:uppercase;color:var(--concrete)}
+.spot iframe{display:block;width:100%;height:352px;border:0}
+.era{margin-top:30px}
+.era-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;padding:12px 0;border-top:1px dashed var(--concrete-dim);margin-bottom:14px}
+.era-head h3{margin:0;font-family:var(--stencil);font-weight:900;font-size:clamp(28px,3vw,46px);letter-spacing:.02em;line-height:.9}
+.era-head .t{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.era-head .tag{margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.incoming,.plat{min-width:0}.meta h3,.incoming strong,.plat strong{overflow-wrap:anywhere}.rec-card{background:var(--cell);border:1px solid var(--concrete-dim);display:flex;flex-direction:column;min-width:0;transition:border-color .15s}
+.rec-card:hover{border-color:var(--concrete)}
+.rec-card.on{border-color:var(--system-green)}
+.art{position:relative;aspect-ratio:1;background:#000;overflow:hidden}
+.art img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.95)}
+.art::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);pointer-events:none}
+.idx{position:absolute;left:10px;top:10px;z-index:2;font-family:var(--crt);font-size:20px;color:var(--system-green);background:rgba(8,8,11,.75);padding:0 6px}
+.meta{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.note{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ministry-red)}
+.meta h3{margin:0;font-family:var(--stencil);font-weight:900;font-size:clamp(24px,2vw,32px);line-height:.92;color:var(--bone)}
+.row{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.2em;color:var(--concrete);font-variant-numeric:tabular-nums}
+.acts{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:6px}
+.play{display:block;text-align:center;border:1px solid var(--system-green);color:var(--system-green);background:none;padding:9px 10px;font:700 10.5px/1 var(--mono);letter-spacing:.22em;cursor:pointer;text-decoration:none}
+.play:hover,.rec-card.on .play{background:var(--system-green);color:var(--black-signal)}
+.play.alt{border-color:var(--cold-cyan);color:var(--cold-cyan)}
+.play.alt:hover{background:var(--cold-cyan);color:var(--black-signal)}
+.links{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.links a{color:var(--concrete);text-decoration:none}
+.links a:hover{color:var(--bone)}
+.incoming{border:1px dashed var(--ministry-red);background:linear-gradient(180deg,rgba(190,24,38,.08),transparent 70%),var(--cell);display:flex;flex-direction:column;justify-content:center;gap:12px;padding:18px;min-height:100%}
+.incoming .k{font-size:10px;letter-spacing:.22em;color:var(--ministry-red);text-transform:uppercase}
+.incoming strong{font-family:var(--stencil);font-weight:900;font-size:clamp(34px,3vw,52px);line-height:.88;color:var(--bone)}
+.incoming .redact{display:block;height:12px;background:var(--bone);opacity:.85;width:80%}
+.incoming .redact.s{width:55%}
+.incoming p{margin:0;font-size:10.5px;letter-spacing:.2em;line-height:1.8;text-transform:uppercase;color:var(--concrete)}
+.incoming p b{color:var(--system-green);font-weight:700}
+@media (max-width:1200px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.plats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1000px){.mhead,.deck{grid-template-columns:minmax(0,1fr)}.dossier{border-left:0;padding-left:0;border-top:1px solid var(--concrete-dim);padding-top:16px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.incoming{grid-column:1/-1}.incoming strong{font-size:34px}.plat strong{font-size:22px}.mhead h1{font-size:72px}.plats{grid-template-columns:repeat(2,minmax(0,1fr))}.plat{min-height:96px}.grid{gap:10px}.meta{padding:10px}.meta h3{font-size:22px}.row{font-size:9.5px;letter-spacing:.1em}.links{font-size:9px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="strip">
+<span class="rec"><i></i>ON AIR</span>
+<span>BONAMI BONAMI · THE STASH</span>
+<span class="spacer"></span>
+<nav class="navlinks" aria-label="Site">
+<a href="https://www.bonamibonami.com/" target="_top">Home</a>
+<a href="https://www.bonamibonami.com/live" target="_top">Live</a>
+<a href="https://www.bonamibonami.com/music-videos" target="_top">Videos</a>
+<a href="https://www.bonamibonami.com/bonamradio" target="_top">Radio</a>
+<a href="https://www.bonamibonami.com/contraband" target="_top">Shop</a>
+</nav>
+</div>
+<div class="ticker" aria-hidden="true"><span>13 TRANSMISSIONS RECOVERED ··· NEW SIGNAL: "GIVE YOU ALL" OUT NOW ··· FOUR KNUCKLES EP INCOMING 27.11 ··· CAPTIVE EP ON FILE ··· PLAYED ON BBC 6 MUSIC · RADIO X · BBC INTRODUCING ··· PSYCHEDELIC DISSOCIATING TECHNO POP FOR THE MASSES ···</span></div>
+<header class="mhead">
+<div>
+<span class="stamp">THE STASH</span>
+<h1>MUSIC</h1>
+<p class="lede">Psychedelic dissociating <em>techno pop</em> for the masses. Every BONAM release on file, on every platform.</p>
+</div>
+<dl class="dossier">
+<div><dt>Artist</dt><dd>BONAM</dd></div>
+<div><dt>Label</dt><dd>SOCARN</dd></div>
+<div><dt>Releases on file</dt><dd>13</dd></div>
+<div><dt>First contact</dt><dd>Red/Blue · 2024</dd></div>
+<div><dt>Latest</dt><dd class="g">Give You All</dd></div>
+<div><dt>Incoming</dt><dd class="r">Four Knuckles EP · 27.11</dd></div>
+</dl>
+</header>
+<section class="section">
+<h2 class="sec-title"><span class="n">01.</span> TUNE IN <span class="aside">Pick your frequency</span></h2>
+<div class="plats">
+<a class="plat main" href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener"><span class="k"><b>FQ-01</b><span>Stream</span></span><strong>SPOTIFY</strong></a>
+<a class="plat main" href="https://bonam.bandcamp.com" target="_blank" rel="noopener"><span class="k"><b>FQ-02</b><span>Buy · support</span></span><strong>BANDCAMP</strong></a>
+<a class="plat" href="https://music.apple.com/gb/artist/bonam/1377741323" target="_blank" rel="noopener"><span class="k"><b>FQ-03</b><span>Stream</span></span><strong>APPLE MUSIC</strong></a>
+<a class="plat" href="https://www.deezer.com/artist/285413761" target="_blank" rel="noopener"><span class="k"><b>FQ-04</b><span>Stream</span></span><strong>DEEZER</strong></a>
+<a class="plat" href="https://www.youtube.com/channel/UCitA8zWfsqDAeG4oWkZCtxg" target="_blank" rel="noopener"><span class="k"><b>FQ-05</b><span>Watch</span></span><strong>YOUTUBE</strong></a>
+</div>
+<div class="deck">
+<div class="panel-box">
+<div class="box-top"><span>PLAYBACK BAY</span><span class="tags"><span class="tag g">LIVE SIGNAL</span></span></div>
+<div class="bay">
+<div class="now" id="now">NOW PLAYING <span>▸</span> GIVE YOU ALL</div>
+<iframe id="bay" title="BONAM on Bandcamp" src="https://bandcamp.com/EmbeddedPlayer/track=2800362627/size=large/bgcol=333333/linkcol=26d296/artwork=small/tracklist=false/transparent=true/" seamless></iframe>
+<p>Hit play on any release below to load it here. Buying on Bandcamp puts the most money straight in the dealer's pocket.</p>
+</div>
+</div>
+<div class="panel-box spot">
+<iframe title="BONAM on Spotify" loading="lazy" src="https://open.spotify.com/embed/artist/6NBLIzKHDGOjBgRTOdhQbG?utm_source=generator&amp;theme=0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+</div>
+</div>
+</section>
+<section class="section">
+<h2 class="sec-title"><span class="n">02.</span> THE STASH <span class="aside">Newest first</span></h2>
+<div class="era">
+<div class="era-head"><h3>FOUR KNUCKLES</h3><span class="t">Era 03 · 2026 · singles</span><span class="tag r">EP INCOMING 27.11</span></div>
+<div class="grid"><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a4160555308_16.jpg" alt="Give You All cover art" loading="lazy"><span class="idx">#01</span></div>
+<div class="meta"><span class="note">Single 03</span><h3>Give You All</h3><div class="row"><span>12.11.26</span><span>6:32</span></div>
+<div class="acts"><button class="play" type="button" data-bc="2800362627" data-title="Give You All" aria-label="Play Give You All">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/give-you-all" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/give-you-all-single/6828791818" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a1856838501_16.jpg" alt="Feel Again cover art" loading="lazy"><span class="idx">#02</span></div>
+<div class="meta"><span class="note">Single 02 · BBC Introducing</span><h3>Feel Again</h3><div class="row"><span>23.10.26</span><span>3:11</span></div>
+<div class="acts"><button class="play" type="button" data-bc="3084635128" data-title="Feel Again" aria-label="Play Feel Again">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/feel-again" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/feel-again-single/6817417128" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a3668827959_16.jpg" alt="No More Numbers cover art" loading="lazy"><span class="idx">#03</span></div>
+<div class="meta"><span class="note">Single 01</span><h3>No More Numbers</h3><div class="row"><span>25.09.26</span><span>4:50</span></div>
+<div class="acts"><button class="play" type="button" data-bc="2113547865" data-title="No More Numbers" aria-label="Play No More Numbers">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/no-more-numbers" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/no-more-numbers-single/6813009681" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article>
+<div class="incoming"><span class="k">● Classified · incoming</span><strong>FOUR KNUCKLES EP</strong><span class="redact"></span><span class="redact s"></span><p>Full EP drops <b>27.11</b>. Follow on Spotify and Bandcamp so it lands on you first.</p></div>
+</div>
+</div>
+<div class="era">
+<div class="era-head"><h3>CAPTIVE EP</h3><span class="t">Era 02 · 2026 · 4 tracks</span><a class="tag g" style="text-decoration:none" href="https://music.apple.com/gb/album/captive-ep/6784304962" target="_blank" rel="noopener">FULL EP ↗</a></div>
+<div class="grid"><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a0475487988_16.jpg" alt="Moving On cover art" loading="lazy"><span class="idx">#04</span></div>
+<div class="meta"><span class="note">Track 01</span><h3>Moving On</h3><div class="row"><span>19.03.26</span><span>2:49</span></div>
+<div class="acts"><button class="play" type="button" data-bc="2050813380" data-title="Moving On" aria-label="Play Moving On">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/moving-on" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/moving-on-single/1883644141" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a1116739213_16.jpg" alt="Hold cover art" loading="lazy"><span class="idx">#05</span></div>
+<div class="meta"><span class="note">Track 02</span><h3>Hold</h3><div class="row"><span>22.04.26</span><span>3:39</span></div>
+<div class="acts"><button class="play" type="button" data-bc="4084691022" data-title="Hold" aria-label="Play Hold">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/hold" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/hold-single/1889776480" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a4078464795_16.jpg" alt="Signal cover art" loading="lazy"><span class="idx">#06</span></div>
+<div class="meta"><span class="note">Track 03</span><h3>Signal</h3><div class="row"><span>07.05.26</span><span>2:23</span></div>
+<div class="acts"><button class="play" type="button" data-bc="3301478077" data-title="Signal" aria-label="Play Signal">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/signal" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/signal-single/1893856367" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a1365373954_16.jpg" alt="Too Close to the Sun cover art" loading="lazy"><span class="idx">#07</span></div>
+<div class="meta"><span class="note">Track 04 · 6 Music</span><h3>Too Close to the Sun</h3><div class="row"><span>14.07.26</span><span>3:14</span></div>
+<div class="acts"><button class="play" type="button" data-bc="2556709988" data-title="Too Close to the Sun" aria-label="Play Too Close to the Sun">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/too-close-to-the-sun" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/captive-ep/6784304962" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article></div>
+</div>
+<div class="era">
+<div class="era-head"><h3>EARLY TRANSMISSIONS</h3><span class="t">Era 01 · 2024–2025 · singles</span></div>
+<div class="grid"><article class="rec-card">
+<div class="art"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1c/0e/47/1c0e47b1-9a74-2d3f-a4c1-4b7cbba8a5c0/199900074546.jpg/600x600bb.jpg" alt="Portal cover art" loading="lazy"><span class="idx">#08</span></div>
+<div class="meta"><span class="note">Metamorphika 01 comp</span><h3>Portal</h3><div class="row"><span>08.12.25</span><span>5:18</span></div>
+<div class="acts"><a class="play alt" href="https://music.apple.com/gb/album/portal/1857038229?i=1857038232" target="_blank" rel="noopener">▶ STREAM</a><span class="links"><a href="https://music.apple.com/gb/album/portal/1857038229?i=1857038232" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a4145530031_16.jpg" alt="Coco's Island cover art" loading="lazy"><span class="idx">#09</span></div>
+<div class="meta"><span class="note">Single</span><h3>Coco's Island</h3><div class="row"><span>13.06.25</span><span>5:11</span></div>
+<div class="acts"><button class="play" type="button" data-bc="2298949502" data-title="Coco's Island" aria-label="Play Coco's Island">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/cocos-island" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/cocos-island-single/1818792984" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a0231014498_16.jpg" alt="Throw cover art" loading="lazy"><span class="idx">#10</span></div>
+<div class="meta"><span class="note">Single</span><h3>Throw</h3><div class="row"><span>22.04.25</span><span>4:43</span></div>
+<div class="acts"><button class="play" type="button" data-bc="4169600412" data-title="Throw" aria-label="Play Throw">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/throw" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/throw-single/1806275579" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a0017644603_16.jpg" alt="Already Here cover art" loading="lazy"><span class="idx">#11</span></div>
+<div class="meta"><span class="note">Single</span><h3>Already Here</h3><div class="row"><span>20.03.25</span><span>4:07</span></div>
+<div class="acts"><button class="play" type="button" data-bc="964358483" data-title="Already Here" aria-label="Play Already Here">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/already-here" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/already-here-single/1800911936" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/1b/3c/3f/1b3c3fa1-75b5-dcc0-3391-797e151b07d2/198846824239.jpg/600x600bb.jpg" alt="Bite cover art" loading="lazy"><span class="idx">#12</span></div>
+<div class="meta"><span class="note">Single</span><h3>Bite</h3><div class="row"><span>21.11.24</span><span>3:07</span></div>
+<div class="acts"><a class="play alt" href="https://music.apple.com/gb/album/bite-single/1778041873" target="_blank" rel="noopener">▶ STREAM</a><span class="links"><a href="https://music.apple.com/gb/album/bite-single/1778041873" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article><article class="rec-card">
+<div class="art"><img src="https://f4.bcbits.com/img/a1023274770_16.jpg" alt="Red/Blue cover art" loading="lazy"><span class="idx">#13</span></div>
+<div class="meta"><span class="note">Debut · first contact</span><h3>Red/Blue</h3><div class="row"><span>08.10.24</span><span>3:31</span></div>
+<div class="acts"><button class="play" type="button" data-bc="365669071" data-title="Red/Blue" aria-label="Play Red/Blue">▶ PLAY</button><span class="links"><a href="https://bonam.bandcamp.com/track/red-blue" target="_blank" rel="noopener">Bandcamp</a> <a href="https://music.apple.com/gb/album/red-blue-single/1767833724" target="_blank" rel="noopener">Apple</a> <a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a></span></div></div>
+</article></div>
+</div>
+</section>
+<footer class="foot">
+<div class="socials">
+<a href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">Spotify</a>
+<a href="https://bonam.bandcamp.com" target="_blank" rel="noopener">Bandcamp</a>
+<a href="https://www.instagram.com/bonam_music" target="_blank" rel="noopener">Instagram</a>
+<a href="https://www.tiktok.com/@bonam_music" target="_blank" rel="noopener">TikTok</a>
+<a href="https://www.youtube.com/channel/UCitA8zWfsqDAeG4oWkZCtxg" target="_blank" rel="noopener">YouTube</a>
+</div>
+<div class="mail">Bookings · <a href="mailto:bonamimusic@gmail.com">bonamimusic@gmail.com</a></div>
+</footer>
+</div>
+<script>
+(function(){
+var bay=document.getElementById('bay'),now=document.getElementById('now');
+document.querySelectorAll('button.play[data-bc]').forEach(function(b){
+b.addEventListener('click',function(){
+bay.src='https://bandcamp.com/EmbeddedPlayer/track='+b.dataset.bc+'/size=large/bgcol=333333/linkcol=26d296/artwork=small/tracklist=false/transparent=true/';
+now.innerHTML='NOW PLAYING <span>▸</span> '+b.dataset.title.toUpperCase();
+document.querySelectorAll('.rec-card.on').forEach(function(c){c.classList.remove('on')});
+b.closest('.rec-card').classList.add('on');
+});
+});
+})();
+</script>
+</body>
+</html>

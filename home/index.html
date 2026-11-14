@@ -83,6 +83,23 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 .feed-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--concrete-dim);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
 
 /* sections */
+.screen{cursor:pointer}
+.ch-layer{position:absolute;inset:0}
+.ch-layer>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;filter:contrast(1.1) saturate(.9)}
+.ch-layer img{image-rendering:pixelated}
+.ch-layer iframe{pointer-events:none;transform:scale(1.35)}
+.static{position:absolute;inset:0;width:100%;height:100%;z-index:5;opacity:0;pointer-events:none;image-rendering:pixelated;mix-blend-mode:screen}
+.static.on{opacity:1}
+.screen.zap .ch-layer{animation:roll .38s steps(6) 1}
+@keyframes roll{0%{transform:translateY(-12%) scaleY(1.2);filter:brightness(2) contrast(2)}50%{transform:translateY(8%) skewX(4deg)}100%{transform:none}}
+.chnum{position:absolute;left:26px;top:22px;z-index:7;font-family:var(--crt);font-size:30px;color:var(--system-green);text-shadow:0 0 6px rgba(38,210,150,.5);letter-spacing:.04em}
+.zap{display:flex;gap:8px}
+.feed-foot button{font:inherit;letter-spacing:.22em;text-transform:uppercase;color:var(--bone);background:none;border:1px solid var(--concrete-dim);padding:7px 10px;cursor:pointer}
+.feed-foot button:hover{border-color:var(--system-green);color:var(--system-green)}
+.feed-foot .snd{border-color:var(--ministry-red);color:var(--ministry-red)}
+.feed-foot .snd[aria-pressed="true"]{border-color:var(--system-green);color:var(--black-signal);background:var(--system-green)}
+.feed-foot{align-items:center}
+.feed-foot .hint{margin-left:auto}
 .section{padding-block:34px 30px;border-bottom:1px solid var(--concrete-dim)}
 .sec-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:0 0 20px;font-family:var(--stencil);font-weight:900;font-size:clamp(26px,2.6vw,38px);letter-spacing:.03em}
 .sec-title .n{color:var(--ministry-red)}
@@ -149,7 +166,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
   .rel-dl{grid-template-columns:1fr 1fr}
   .foot{grid-template-columns:minmax(0,1fr)}
   .readout,.corner{font-size:16px}
-  .readout{left:20px;bottom:16px}.corner{right:20px;top:16px}
+  .readout{left:20px;bottom:16px}.corner{right:20px;top:16px}.chnum{left:20px;top:14px;font-size:24px}.feed-foot .hint{display:none}
   .btn{flex:1 1 100%}
 }
 @media (prefers-reduced-motion:reduce){.ticker span,.rec i,.corner i{animation:none}}
@@ -175,23 +192,28 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 
   <header class="hero">
     <div>
-      <span class="stamp">SONIC DEALER</span>
       <h1>BONAM</h1>
-      <p class="lede">Psychedelic dissociating <em>techno pop</em> for the masses. Broadcasting from London on an unlicensed frequency.</p>
+      <p class="lede">Psychedelic dissociating <em>techno pop</em> for the masses.</p>
       <div class="hero-actions">
         <a class="btn solid" href="https://bonam.bandcamp.com/track/give-you-all" target="_blank" rel="noopener">▶ Hear "Give You All"</a>
         <a class="btn" href="https://www.bonamibonami.com/live" target="_top">Book the live show</a>
       </div>
     </div>
     <div class="panel-box">
-      <div class="box-top"><span>FEED 01 · SECTOR: UNKNOWN</span><span class="tags"><span class="tag g">SIGNAL OK</span><span class="tag r">UNREGISTERED</span></span></div>
-      <div class="screen">
-        <video autoplay muted loop playsinline preload="auto" poster="https://static.wixstatic.com/media/ffc593_50f54ba2b8594e98b0b3b8275b690b72~mv2.gif" src="https://video.wixstatic.com/video/ffc593_40d6cfea57454561bdbf9fb63b934a64/720p/mp4/file.mp4"></video>
+      <div class="box-top"><span id="chName">FEED 01 · TUNING…</span><span class="tags"><span class="tag g">SIGNAL OK</span><span class="tag r">UNREGISTERED</span></span></div>
+      <div class="screen" id="screen" title="Click to change channel">
+        <div class="ch-layer" id="chLayer"></div>
+        <canvas class="static" id="static" width="160" height="100" aria-hidden="true"></canvas>
         <div class="reticle"></div>
         <div class="corner"><i></i>LIVE</div>
-        <div class="readout">CAM 01 · NOISE LEVEL: RISING<br>HEARTBEATS DETECTED: ∞</div>
+        <div class="chnum" id="chNum">CH 01</div>
+        <div class="readout" id="readout">TUNING…<br>NOISE LEVEL: RISING</div>
       </div>
-      <div class="feed-foot"><span>Source: unknown</span><span>Do not adjust your set</span></div>
+      <div class="feed-foot">
+        <span class="zap"><button type="button" id="chPrev" aria-label="Previous channel">◂ CH</button><button type="button" id="chNext" aria-label="Next channel">CH ▸</button></span>
+        <button type="button" class="snd" id="snd" aria-pressed="false" hidden>🔇 Sound off</button>
+        <span class="hint" id="hint">Do not adjust your set</span>
+      </div>
     </div>
   </header>
 
@@ -258,5 +280,58 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
   </footer>
 
 </div>
+<script>
+(function(){
+var W='https://static.wixstatic.com/media/ffc593_', V=function(id,q){return 'https://video.wixstatic.com/video/ffc593_'+id+'/'+(q||'480p')+'/mp4/file.mp4'};
+var CH=[
+ {t:'img',src:W+'50f54ba2b8594e98b0b3b8275b690b72~mv2.gif',name:'THE FOREST',line:'SECTOR: UNKNOWN'},
+ {t:'vid',src:V('40d6cfea57454561bdbf9fb63b934a64'),name:'LIVE // CRUX AV',line:'NEW RIVER STUDIOS',snd:1},
+ {t:'vid',src:V('3f5012d4be4f42a6a793619ce0ede2e8','720p'),name:'MUSIC VIDEO // RED/BLUE',line:'OFFICIAL TRAILER',snd:1},
+ {t:'img',src:W+'f57793fbc9db42c892b9fe31d5596856~mv2.gif',name:'DATA STREAM',line:'INTERCEPT IN PROGRESS'},
+ {t:'vid',src:V('0d10ee6facac4acabde252dcfe2e697f'),name:'LIVE // HOUSE OF KOKO',line:'CAMDEN',snd:1},
+ {t:'vid',src:V('6adbe65c81ba4c8cb22438716d7ad43a','720p'),name:'SPECIMEN 07',line:'CAPTIVE'},
+ {t:'yt',id:'jhq-EtsbdmA',start:35,name:'MUSIC VIDEO // MOVING ON',line:'OFFICIAL VIDEO',snd:1},
+ {t:'img',src:W+'6901154963254c22a5b11a6ef83e0499~mv2.gif',name:'SECTOR 9',line:'MOVEMENT DETECTED'},
+ {t:'vid',src:V('67d50e86ad37473c8a1acb80ca48d228'),name:'LIVE // THE VICTORIA',line:'LONDON',snd:1},
+ {t:'img',src:W+'73a1447bc21743258e0f7f7eb86ba298~mv2.gif',name:'NIGHT CITY',line:'NOISE LEVEL: RISING'},
+ {t:'vid',src:V('b7c0114c63434c1e90628da7d06c695c'),name:'LIVE // BON AMI LIVE',line:'FULLY LIVE SET',snd:1},
+ {t:'img',src:W+'b403ae62d38e4e3d840083065148dc9b~mv2.gif',name:'UPPER ATMOSPHERE',line:'SIGNAL DRIFTING'},
+ {t:'vid',src:V('bca5fa449e7746e5b33e549d092b41e6'),name:'LIVE // THE GLOVE THAT FITS',line:'HACKNEY',snd:1}
+];
+var layer=document.getElementById('chLayer'),scr=document.getElementById('screen'),cv=document.getElementById('static'),cx=cv.getContext('2d'),
+ nameEl=document.getElementById('chName'),numEl=document.getElementById('chNum'),ro=document.getElementById('readout'),snd=document.getElementById('snd'),
+ i=-1,timer=null,soundOn=false,cur=null;
+function pad(n){return (n<10?'0':'')+n}
+function noise(ms){var img=cx.createImageData(160,100),end=Date.now()+ms;cv.classList.add('on');
+ (function f(){for(var k=0;k<img.data.length;k+=4){var v=Math.random()*255|0;img.data[k]=img.data[k+1]=img.data[k+2]=v;img.data[k+3]=255}
+ cx.putImageData(img,0,0);if(Date.now()<end)requestAnimationFrame(f);else cv.classList.remove('on')})()}
+function yt(cmd,args){if(cur&&cur.tagName==='IFRAME'){try{cur.contentWindow.postMessage(JSON.stringify({event:'command',func:cmd,args:args||[]}),'*')}catch(e){}}}
+function applySound(){var c=CH[i];
+ if(!c.snd){snd.hidden=true;return}
+ snd.hidden=false;snd.setAttribute('aria-pressed',soundOn?'true':'false');snd.textContent=soundOn?'🔊 Sound on':'🔇 Sound off';
+ if(cur&&cur.tagName==='VIDEO'){cur.muted=!soundOn;if(soundOn)cur.play().catch(function(){})}
+ if(cur&&cur.tagName==='IFRAME'){yt(soundOn?'unMute':'mute');if(soundOn)yt('setVolume',[100])}}
+function go(n){
+ i=(n+CH.length)%CH.length;var c=CH[i],el;
+ if(c.t==='img'){el=new Image();el.src=c.src;el.alt=''}
+ else if(c.t==='vid'){el=document.createElement('video');el.src=c.src;el.muted=true;el.loop=true;el.autoplay=true;el.playsInline=true;el.setAttribute('playsinline','');el.preload='auto';
+  el.addEventListener('loadedmetadata',function(){try{if(el.duration>20)el.currentTime=Math.random()*el.duration*.5}catch(e){}});
+  el.play&&el.play().catch(function(){})}
+ else{el=document.createElement('iframe');el.allow='autoplay; encrypted-media';el.title=c.name;
+  el.src='https://www.youtube-nocookie.com/embed/'+c.id+'?autoplay=1&mute=1&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1&loop=1&playlist='+c.id+'&start='+c.start+'&enablejsapi=1';
+  el.addEventListener('load',function(){setTimeout(applySound,800)})}
+ noise(380);scr.classList.remove('zap');void scr.offsetWidth;scr.classList.add('zap');
+ var old=layer.children;for(var k=old.length-1;k>=0;k--){var o=old[k];if(o.pause)o.pause();o.remove()}
+ layer.appendChild(el);cur=el;
+ numEl.textContent='CH '+pad(i+1);nameEl.textContent='FEED 01 · CH '+pad(i+1)+' · '+c.name;ro.innerHTML=c.name+'<br>'+c.line;
+ applySound();schedule()}
+function schedule(){clearTimeout(timer);if(soundOn&&CH[i].snd)return;timer=setTimeout(function(){go(i+1)},CH[i].t==='img'?5200:8000)}
+document.getElementById('chNext').onclick=function(e){e.stopPropagation();go(i+1)};
+document.getElementById('chPrev').onclick=function(e){e.stopPropagation();go(i-1)};
+scr.onclick=function(){go(i+1)};
+snd.onclick=function(){soundOn=!soundOn;applySound();schedule()};
+go(0);
+})();
+</script>
 </body>
 </html>

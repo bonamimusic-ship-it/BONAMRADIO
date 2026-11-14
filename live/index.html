@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BONAM Live</title>
+<meta name="description" content="BONAM live: a fully live electronic show from the sonic dealer. Footage, transmission log, rig and bookings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500;700;800&family=VT323&display=swap">
+<style>
+/* Layout: surveillance file on an unlicensed live act. Status strip + ticker, case header with dossier,
+   a live CCTV feed beside a Ministry notice and intercept log, footage evidence grid with a playback bay,
+   transmission log of past shows, rig manifest, then bookings. Same system as Contraband + BONAM Radio. */
+:root{
+  --ministry-red:#BE1826; --red-dim:#6e0e16;
+  --system-green:#26D296; --green-dim:#0d6b4b;
+  --cold-cyan:#417890; --cyan-dim:#1f3d4a;
+  --concrete:#69706C; --concrete-dim:#2a2d2c;
+  --black-signal:#08080B; --cell:#0c0d10; --cell-2:#101216;
+  --bone:#d8d2c4; --amber:#e8a93a;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --crt:'VT323',ui-monospace,monospace;
+  --stencil:'Big Shoulders Stencil',Impact,'Arial Narrow',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--black-signal);color:var(--bone)}
+body{font-family:var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative;min-height:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--system-green);outline-offset:3px}
+[hidden]{display:none!important}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.wrap{max-width:1680px;margin:0 auto;padding-inline:clamp(16px,3.2vw,56px);padding-block:0 48px}
+.green{color:var(--system-green)} .red{color:var(--ministry-red)} .cyan{color:var(--cold-cyan)} .dim{color:var(--concrete)}
+
+/* status strip */
+.strip{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;padding-block:12px;border-bottom:1px solid var(--concrete-dim);
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.strip b{font-weight:500}
+.strip .spacer{flex:1}
+.rec{color:var(--ministry-red)}
+.rec i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ministry-red);margin-right:8px;vertical-align:1px;animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.book-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--system-green);color:var(--system-green);padding:7px 12px;letter-spacing:.22em;font-weight:700;text-decoration:none}
+.book-btn:hover{background:var(--system-green);color:var(--black-signal)}
+.ticker{overflow:hidden;border-bottom:1px solid var(--concrete-dim);white-space:nowrap;font-size:11px;letter-spacing:.24em;color:var(--ministry-red);padding-block:10px}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 46s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+
+/* case header */
+.head{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:56px;padding-block:34px 26px;border-bottom:1px solid var(--concrete-dim)}
+.stamp{display:inline-block;font-family:var(--stencil);font-weight:700;letter-spacing:.2em;font-size:15px;color:var(--ministry-red);
+  border:2px solid var(--ministry-red);padding:2px 10px;transform:rotate(-2deg);margin-bottom:8px}
+h1{font-family:var(--stencil);font-weight:900;font-size:clamp(36px,10vw,140px);line-height:.86;margin:0;letter-spacing:.01em;
+  color:var(--bone);text-shadow:2px 0 0 rgba(190,24,38,.7),-2px 0 0 rgba(65,120,144,.7);text-wrap:balance}
+.lede{margin:18px 0 0;font-size:13px;line-height:2;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete);max-width:52ch}
+.lede em{font-style:normal;color:var(--system-green)}
+.dossier{margin:0;border-left:1px solid var(--concrete-dim);padding-left:28px;display:grid;gap:12px;align-content:start;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.dossier div{display:flex;justify-content:space-between;gap:12px}
+.dossier dt{color:var(--concrete)}
+.dossier dd{margin:0;text-align:right;font-weight:700}
+
+/* feed + notice */
+.feed-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;padding-block:28px;border-bottom:1px solid var(--concrete-dim)}
+.panel-box{background:var(--cell);border:1px solid var(--concrete-dim);min-width:0}
+.box-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--concrete-dim);
+  font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:10px;letter-spacing:.2em;padding:4px 8px;border:1px solid var(--concrete-dim);text-transform:uppercase}
+.tag.g{color:var(--system-green);border-color:var(--green-dim)}
+.tag.r{color:var(--ministry-red);border:1px dashed var(--ministry-red)}
+.tag.c{color:var(--cold-cyan);border-color:var(--cyan-dim)}
+.screen{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.08) saturate(.9)}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
+.reticle{position:absolute;inset:14px;pointer-events:none;z-index:6;opacity:.6;--c:var(--system-green);
+  background:
+    linear-gradient(var(--c),var(--c)) top left/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) top left/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) top right/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) top right/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) bottom left/1px 18px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom right/18px 1px no-repeat, linear-gradient(var(--c),var(--c)) bottom right/1px 18px no-repeat}
+.readout{position:absolute;left:26px;bottom:22px;z-index:7;font-family:var(--crt);font-size:20px;letter-spacing:.06em;color:var(--system-green);line-height:1.08;text-shadow:0 0 6px rgba(38,210,150,.5);pointer-events:none}
+.corner{position:absolute;right:26px;top:22px;z-index:7;font-family:var(--crt);font-size:20px;color:var(--ministry-red);letter-spacing:.06em;pointer-events:none}
+.corner i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ministry-red);margin-right:6px;animation:blink 1.4s steps(2) infinite}
+.feed-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--concrete-dim);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.sound{border:1px solid var(--concrete-dim);padding:7px 10px;font-size:10.5px;letter-spacing:.22em;color:var(--bone)}
+.sound[aria-pressed="true"]{border-color:var(--system-green);color:var(--system-green)}
+
+.side{display:grid;gap:20px;align-content:start;min-width:0}
+.notice{border:1px solid var(--ministry-red);background:linear-gradient(180deg,rgba(190,24,38,.07),transparent 60%),var(--cell);padding:18px 18px 16px}
+.notice h2{font-family:var(--stencil);font-weight:900;font-size:clamp(26px,2.6vw,38px);line-height:.95;margin:0 0 12px;letter-spacing:.02em;color:var(--bone)}
+.notice p{margin:0;font-size:11px;line-height:1.9;letter-spacing:.16em;text-transform:uppercase;color:var(--concrete)}
+.notice p b{color:var(--ministry-red);font-weight:500}
+.notice .meta{display:flex;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--red-dim);font-size:10px;letter-spacing:.22em;color:var(--ministry-red)}
+.sec-title{display:flex;align-items:baseline;gap:14px;margin:0;font-family:var(--stencil);font-weight:900;font-size:clamp(24px,2.4vw,34px);letter-spacing:.03em}
+.sec-title .n{color:var(--ministry-red)}
+.sec-title .aside{margin-left:auto;font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.22em;color:var(--concrete)}
+.log{list-style:none;margin:0;padding:14px;display:grid;gap:8px;font-size:11.5px;letter-spacing:.08em;line-height:1.55}
+.log li{display:grid;grid-template-columns:auto 1fr;gap:12px}
+.log time{color:var(--concrete);font-variant-numeric:tabular-nums}
+.log .c1{color:var(--cold-cyan)} .log .c2{color:var(--system-green)} .log .c3{color:var(--ministry-red)}
+
+/* sections */
+.section{padding-block:30px 6px}
+.section-head{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;padding-bottom:16px;border-bottom:1px solid var(--concrete-dim)}
+
+/* footage filters + grid */
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding-block:16px 0}
+.chip{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;border:1px solid var(--concrete-dim);color:var(--concrete);padding:7px 10px}
+.chip:hover{color:var(--bone)}
+.chip[aria-pressed="true"]{border-color:var(--system-green);color:var(--system-green)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:14px;padding-block:16px 0}
+.cell{position:relative;background:var(--cell);border:1px solid var(--concrete-dim);display:flex;flex-direction:column;min-width:0;transition:border-color .2s;text-align:left;width:100%}
+.cell:hover,.cell:focus-visible{border-color:var(--green-dim)}
+.cell-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--concrete-dim);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete)}
+.thumb{position:relative;aspect-ratio:4/5;overflow:hidden;background:#000}
+.thumb img,.thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.35) contrast(1.05);transition:filter .25s}
+.cell:hover .thumb img,.cell:hover .thumb video{filter:none}
+.thumb .reticle{inset:10px;opacity:.45}
+.thumb .readout{left:16px;bottom:14px;font-size:16px}
+.play{position:absolute;right:14px;bottom:14px;z-index:7;font-size:10px;letter-spacing:.22em;color:var(--black-signal);background:var(--system-green);padding:5px 8px;
+  opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s;pointer-events:none}
+.cell:hover .play,.cell:focus-visible .play{opacity:1;transform:none}
+.cell-body{padding:12px;display:grid;gap:4px}
+.venue{font-family:var(--stencil);font-weight:900;font-size:22px;line-height:1;letter-spacing:.02em;margin:0}
+.spec{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--concrete);margin:0}
+
+/* transmission log table */
+.tlog{width:100%;border-collapse:collapse;margin-top:6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.tlog th{text-align:left;font-weight:500;font-size:10.5px;letter-spacing:.22em;color:var(--concrete);padding:12px 10px;border-bottom:1px solid var(--concrete-dim)}
+.tlog td{padding:14px 10px;border-bottom:1px dashed var(--concrete-dim);vertical-align:baseline}
+.tlog td.v{font-family:var(--stencil);font-weight:900;font-size:22px;letter-spacing:.03em;text-transform:none}
+.tlog td.code{color:var(--concrete);font-variant-numeric:tabular-nums}
+.tlog tr:hover td{background:var(--cell)}
+.fmt{font-size:10px;letter-spacing:.2em;padding:3px 7px;border:1px solid}
+.fmt.live{color:var(--system-green);border-color:var(--green-dim)}
+.fmt.dj{color:var(--cold-cyan);border-color:var(--cyan-dim)}
+.fmt.av{color:var(--amber);border-color:#5a4316}
+.tlog .watch{font-size:10.5px;letter-spacing:.2em;color:var(--system-green);border-bottom:1px solid var(--green-dim)}
+.tlog .watch:hover{color:var(--bone)}
+
+/* rig + intercepts */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;padding-block:16px 0}
+.manifest{list-style:none;margin:0;padding:6px 14px 14px}
+.manifest li{display:grid;grid-template-columns:9ch 1fr;gap:14px;padding:10px 0;border-bottom:1px dashed var(--concrete-dim);font-size:12px;letter-spacing:.12em;line-height:1.6}
+.manifest li:last-child{border-bottom:0}
+.manifest .k{color:var(--concrete);letter-spacing:.2em;font-size:10.5px;padding-top:2px}
+.arc{padding:14px}
+.arc-bar{height:54px;display:flex;align-items:flex-end;gap:3px}
+.arc-bar span{flex:1;background:linear-gradient(to top,var(--green-dim),var(--system-green));opacity:.85;animation:pulse 2.6s ease-in-out infinite}
+.arc-bar span:nth-child(3n){animation-delay:.4s} .arc-bar span:nth-child(4n){animation-delay:.9s}
+@keyframes pulse{50%{opacity:.45}}
+.arc-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;letter-spacing:.22em;color:var(--concrete);text-transform:uppercase}
+.intercepts{list-style:none;margin:0;padding:6px 14px 14px}
+.intercepts li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px dashed var(--concrete-dim);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.intercepts li:last-child{border-bottom:0}
+.intercepts .st{font-family:var(--stencil);font-weight:900;font-size:20px;letter-spacing:.03em;text-transform:none}
+
+/* bookings */
+.booking{margin-top:30px;border:1px solid var(--system-green);background:linear-gradient(180deg,rgba(38,210,150,.06),transparent 70%),var(--cell);
+  display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;padding:26px}
+.booking h2{font-family:var(--stencil);font-weight:900;font-size:clamp(34px,5vw,72px);line-height:.88;margin:0;letter-spacing:.01em;
+  text-shadow:2px 0 0 rgba(190,24,38,.6),-2px 0 0 rgba(65,120,144,.6)}
+.booking p{margin:14px 0 0;font-size:12px;line-height:1.9;letter-spacing:.16em;text-transform:uppercase;color:var(--concrete)}
+.booking .acts{display:grid;gap:10px;align-content:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--system-green);border:1px solid var(--system-green);padding:13px 14px;background:transparent;transition:background .15s,color .15s}
+.btn:hover{background:var(--system-green);color:var(--black-signal)}
+.btn.solid{background:var(--system-green);color:var(--black-signal)}
+.btn.solid:hover{background:var(--bone);border-color:var(--bone)}
+.addr{font-family:var(--crt);font-size:26px;letter-spacing:.04em;color:var(--bone);text-align:center;word-break:break-all}
+
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:32px;padding-top:16px;border-top:1px solid var(--concrete-dim);
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--concrete)}
+
+/* playback bay */
+.scrim{position:absolute;left:0;right:0;top:0;z-index:90;background:rgba(4,4,6,.88);backdrop-filter:blur(3px)}
+.bay{position:absolute;left:50%;transform:translateX(-50%);z-index:100;width:min(980px,calc(100% - 32px));
+  background:var(--cell);border:1px solid var(--green-dim);box-shadow:0 0 0 1px rgba(38,210,150,.08),0 30px 80px rgba(0,0,0,.6)}
+.bay .box-top button{font-size:11px;letter-spacing:.22em;color:var(--bone);border:1px solid var(--concrete-dim);padding:6px 10px}
+.bay .box-top button:hover{border-color:var(--bone)}
+.bay-screen{position:relative;background:#000;display:grid;place-items:center;height:min(72vh,640px)}
+.bay-screen video{max-width:100%;max-height:100%;display:block}
+.bay-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--concrete-dim);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--concrete)}
+.bay-nav button{border:1px solid var(--concrete-dim);padding:7px 12px;color:var(--bone)}
+.bay-nav button:hover{border-color:var(--system-green);color:var(--system-green)}
+
+@media (max-width:1100px){.feed-row{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .two,.booking{grid-template-columns:1fr}
+  .tlog thead{display:none}
+  .tlog,.tlog tbody,.tlog tr,.tlog td{display:block;width:100%}
+  .tlog tr{padding:12px 0;border-bottom:1px dashed var(--concrete-dim)}
+  .tlog td{border:0;padding:3px 0}
+  .tlog tr:hover td{background:none}
+}
+@media (max-width:760px){
+  .head{grid-template-columns:minmax(0,1fr);gap:24px}
+  h1{font-size:clamp(36px,13vw,88px)}
+  .dossier{border-left:0;padding-left:0;border-top:1px solid var(--concrete-dim);padding-top:18px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .venue{font-size:18px}
+  .cell-top{font-size:9px;letter-spacing:.14em}
+  .readout{font-size:16px;left:20px;bottom:16px}
+  .corner{font-size:16px;right:20px;top:16px}
+  .booking{padding:18px}
+  .sec-title .aside{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .ticker span,.rec i,.corner i,.arc-bar span{animation:none}
+  .ticker span{padding-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+  <div class="strip">
+    <span class="rec"><i></i>FIELD CAM 07 // LIVE FEED</span>
+    <span>SUBJECT <b class="green">BONAM</b></span>
+    <span>SYS <b class="green" id="clock">--:--:--</b></span>
+    <span class="spacer"></span>
+    <a class="book-btn" href="mailto:bonamimusic@gmail.com?subject=BONAM%20live%20booking" target="_top">BOOK THE SIGNAL →</a>
+  </div>
+  <div class="ticker" aria-hidden="true"><span>UNLICENSED GATHERING DETECTED &nbsp;×&nbsp; SUBJECT PERFORMING WITHOUT A PERMIT &nbsp;×&nbsp; DANCING IN THE PRESENCE OF BONAM IS A CLASS-2 SONIC OFFENCE &nbsp;×&nbsp; ALL ATTENDEES WILL BE TAGGED &nbsp;×&nbsp; DO NOT ENGAGE &nbsp;×&nbsp; PROTECT THE SIGNAL</span></div>
+
+  <header class="head">
+    <div>
+      <span class="stamp">LIVE ACT</span>
+      <h1>LIVE SIGNAL</h1>
+      <p class="lede">BONAM has built a universe somewhere between reality and fiction. On stage the <em>sonic dealer</em> goes fully live: psychedelic house, indietronica and sub-heavy dance music, played on hardware under a hand-built <em>LED sleeve</em>. The set starts hazy and builds to full dancefloor pressure.</p>
+    </div>
+    <dl class="dossier">
+      <div><dt>Format</dt><dd class="green">FULLY LIVE</dd></div>
+      <div><dt>Sound</dt><dd>PSYCH HOUSE / INDIETRONICA</dd></div>
+      <div><dt>Rig</dt><dd>ABLETON · APC40 · KP3+</dd></div>
+      <div><dt>Light</dt><dd>LED SLEEVE · DMX</dd></div>
+      <div><dt>Classification</dt><dd class="red">UNAUTHORISED AUDIO</dd></div>
+      <div><dt>Status</dt><dd class="green">BOOKING 2027</dd></div>
+    </dl>
+  </header>
+
+  <section class="feed-row" aria-label="Live feed">
+    <div class="panel-box">
+      <div class="box-top">
+        <div class="tags"><span class="tag g">• SIGNAL ACQUIRED</span><span class="tag r">UNAPPROVED CONTENT</span><span class="tag c">CAM 01 · CRUX AV</span></div>
+        <span>NEW RIVER STUDIOS · LDN</span>
+      </div>
+      <div class="screen">
+        <video id="feed" src="https://video.wixstatic.com/video/ffc593_40d6cfea57454561bdbf9fb63b934a64/720p/mp4/file.mp4"
+          poster="https://static.wixstatic.com/media/ffc593_40d6cfea57454561bdbf9fb63b934a64f000.jpg" muted autoplay loop playsinline preload="metadata"></video>
+        <div class="reticle"></div>
+        <span class="corner"><i></i>REC</span>
+        <div class="readout">SUBJECT: BONAM<br>STATUS: PERFORMING LIVE<br><span id="tc">00:00:00:00</span></div>
+      </div>
+      <div class="feed-foot">
+        <span>FORMAT: LIVE / AV &nbsp;·&nbsp; TRACE <span class="red">FAILED</span></span>
+        <button class="sound" id="soundBtn" type="button" aria-pressed="false">SOUND OFF</button>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="notice">
+        <h2>UNLICENSED GATHERING DETECTED</h2>
+        <p>Citizens are reminded that <b>silence is stability</b>. If you have witnessed this performance, please stop dancing and report to the nearest registration kiosk. Compliance is care.</p>
+        <div class="meta"><span>NOTICE LV-07/1</span><span>BROADCAST: SUSPENDED</span></div>
+      </div>
+      <div class="panel-box">
+        <div class="box-top"><h2 class="sec-title" style="font-size:22px"><span class="n">00.</span> INTERCEPT LOG</h2><span class="green">LIVE</span></div>
+        <ol class="log" id="ilog">
+          <li><time>[--:--:--]</time><span class="c1">CARRIER WAVE: BBC RADIO 6 MUSIC</span></li>
+          <li><time>[--:--:--]</time><span class="c1">CARRIER WAVE: RADIO X</span></li>
+          <li><time>[--:--:--]</time><span class="c2">CARRIER WAVE: BBC INTRODUCING LONDON</span></li>
+          <li><time>[--:--:--]</time><span class="c2">CARRIER WAVE: BBC RADIO LONDON</span></li>
+          <li><time>[--:--:--]</time><span class="c2">CARRIER WAVE: COULEUR 3 (CH)</span></li>
+          <li><time>[--:--:--]</time><span class="c3">ATTEMPTING JAM.......[FAILED]</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="fTitle">
+    <div class="section-head">
+      <h2 class="sec-title" id="fTitle"><span class="n">01.</span> INTERCEPTED FOOTAGE</h2>
+      <span class="sec-title"><span class="aside" id="fCount">ARCHIVE // -- FILES</span></span>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filter footage by location"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="section" aria-labelledby="tTitle">
+    <div class="section-head">
+      <h2 class="sec-title" id="tTitle"><span class="n">02.</span> TRANSMISSION LOG</h2>
+      <span class="sec-title"><span class="aside">KNOWN APPEARANCES</span></span>
+    </div>
+    <table class="tlog">
+      <thead><tr><th>Code</th><th>Location</th><th>When</th><th>Format</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="tlog"></tbody>
+    </table>
+  </section>
+
+  <section class="section" aria-labelledby="rTitle">
+    <div class="section-head">
+      <h2 class="sec-title" id="rTitle"><span class="n">03.</span> RIG MANIFEST + SIGNAL</h2>
+    </div>
+    <div class="two">
+      <div class="panel-box">
+        <div class="box-top"><span>EQUIPMENT SEIZED (PROVISIONALLY)</span><span class="tag g">OPERATIONAL</span></div>
+        <ul class="manifest">
+          <li><span class="k">ENGINE</span><span>Ableton Live, every track rebuilt for the stage</span></li>
+          <li><span class="k">CONTROL</span><span>Akai APC40 · Korg Kaoss Pad KP3+</span></li>
+          <li><span class="k">AUDIO</span><span>Focusrite Scarlett 6i6, stereo out to front of house</span></li>
+          <li><span class="k">LIGHT</span><span>LED sleeve (built with Trojanovski, coded by BONAM) · DMX light batten · pixel tubes</span></li>
+          <li><span class="k">PEOPLE</span><span>1 performer</span></li>
+          <li><span class="k">PAPERS</span><span>Tech rider + stage plot on request</span></li>
+        </ul>
+      </div>
+      <div class="side">
+        <div class="panel-box">
+          <div class="box-top"><span>SET ARC</span><span class="dim">HAZE → PRESSURE</span></div>
+          <div class="arc"><div class="arc-bar" id="arc" aria-hidden="true"></div>
+            <div class="arc-legend"><span>OPEN: HAZY</span><span>MID: BUILD</span><span>CLOSE: DANCEFLOOR</span></div></div>
+        </div>
+        <div class="panel-box">
+          <div class="box-top"><span>NEXT TRANSMISSION</span><span class="tag r">CLASSIFIED</span></div>
+          <ul class="intercepts">
+            <li><span class="st">Something big. Spring 2027.</span><span class="red">LOCATION: [REDACTED]</span></li>
+            <li><span class="st">Four Knuckles EP</span><span class="green">OUT 27.11</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="booking" aria-labelledby="bTitle">
+    <div>
+      <span class="stamp">FESTIVALS · CLUBS · AV</span>
+      <h2 id="bTitle">BOOK THE SIGNAL</h2>
+      <p>Now taking festival, club and audiovisual bookings for 2027. Live footage, tech rider and press kit available on request.</p>
+    </div>
+    <div class="acts">
+      <div class="addr">bonamimusic@gmail.com</div>
+      <a class="btn solid" href="mailto:bonamimusic@gmail.com?subject=BONAM%20live%20booking" target="_top">SEND A BOOKING REQUEST →</a>
+      <a class="btn" href="https://www.bonamibonami.com/epk" target="_top">PRESS KIT (EPK)</a>
+      <a class="btn" href="https://open.spotify.com/artist/6NBLIzKHDGOjBgRTOdhQbG" target="_blank" rel="noopener">LISTEN ON SPOTIFY</a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>Select any footage to play it with sound</span>
+    <span>BONAM · LONDON</span>
+    <span class="green">PROTECT THE SIGNAL</span>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="bay" id="bay" role="dialog" aria-modal="true" aria-labelledby="bayTitle" hidden>
+  <div class="box-top"><span id="bayTitle">PLAYBACK BAY</span><button type="button" id="bayClose">CLOSE ✕</button></div>
+  <div class="bay-screen"><video id="bayVid" controls playsinline></video></div>
+  <div class="bay-nav"><button type="button" id="prev">← PREV</button><span id="bayInfo">--</span><button type="button" id="next">NEXT →</button></div>
+</section>
+
+<script>
+/* ============ DATA ============ */
+const V = (id, q='720p') => ({ src:`https://video.wixstatic.com/video/ffc593_${id}/${q}/mp4/file.mp4`, poster:`https://static.wixstatic.com/media/ffc593_${id}f000.jpg` });
+const SHOWS = [
+  { key:'crux',  code:'LV-08', venue:'CRUX AV',            place:'New River Studios, London', when:'26 NOV', fmt:['av','LIVE / AV'], note:'Audiovisual night',
+    clips:[V('40d6cfea57454561bdbf9fb63b934a64'),V('0d9f521235f64c3dba164799e069598f'),V('e5f982490e534697846067c3239ab1ed'),V('2cf93426ce4f420393a8e5d092f0984c')] },
+  { key:'glove2',code:'LV-07', venue:'The Glove That Fits', place:'Hackney, London',          when:'DEC',    fmt:['live','LIVE'],     note:'',
+    clips:[V('bca5fa449e7746e5b33e549d092b41e6')] },
+  { key:'victoria',code:'LV-06',venue:'The Victoria',      place:'London',           when:'25 JAN', fmt:['live','LIVE'],     note:'',
+    clips:[V('67d50e86ad37473c8a1acb80ca48d228'),V('eebc837a9de44d59b840fdd92776f468'),V('9cd9ebf8e0894e37b761b229118a58cd'),V('5ffaf290e3804fe0bcb6355d7fdbccc2','480p')] },
+  { key:'koko',  code:'LV-05', venue:'House of KOKO',      place:'Camden, London',            when:'NYE',    fmt:['live','LIVE'],     note:"New Year's Eve",
+    clips:[V('0d10ee6facac4acabde252dcfe2e697f'),V('4bd48295b0f7486f8cada0d49a78bf30'),V('4c4bc238564145499fb0085c89ba8292')] },
+  { key:'glove1',code:'LV-04', venue:'The Glove That Fits', place:'Hackney, London',          when:'—',      fmt:['live','LIVE'],     note:'',
+    clips:[V('3622a6e4d450431a856315c66a367fdf'),V('3ae61cd6f6a5476599df0e73b39deabe','480p'),V('af2d2964e1544f229f86111992d649e5')] },
+  { key:'barge', code:'LV-03', venue:'Thames barge launch', place:'River Thames, London',     when:'—',      fmt:['live','LAUNCH'],   note:'Sold out · converted 1930s barge',
+    clips:[V('b89551fd868f407ebdcb04d7797c2ceb')] },
+  { key:'overground',code:'LV-02',venue:'Project Overground', place:'Secret rave, London',   when:'29 MAR', fmt:['dj','DJ SET'],     note:'',
+    clips:[V('d9111756fbaa43e6ab3885ea51c2d0ae','480p'),V('d4f0ef9347b1462990f680e2e8761aac','480p')] },
+  { key:'redblue',code:'LV-01',venue:'Red/Blue launch',    place:'Meta Morphika, London',     when:'OCT 2024', fmt:['dj','DJ SET'],   note:'Single launch party',
+    clips:[V('2b7d80a5636e4693a1292a957679a744')] },
+];
+const SHORT = { crux:'CRUX AV', glove2:'GLOVE THAT FITS', victoria:'THE VICTORIA', koko:'KOKO', glove1:'GLOVE THAT FITS', barge:'THAMES BARGE', overground:'OVERGROUND', redblue:'RED/BLUE' };
+const ALL = []; SHOWS.forEach(s => s.clips.forEach((c, i) => ALL.push({ ...c, show:s, n:i + 1 })));
+const pad = n => String(n).padStart(2, '0');
+
+/* ============ CLOCK + TIMECODE ============ */
+const clock = document.getElementById('clock');
+const stamp = () => new Date().toTimeString().slice(0, 8);
+setInterval(() => clock.textContent = stamp(), 1000); clock.textContent = stamp();
+document.querySelectorAll('#ilog time').forEach((t, i) => { const d = new Date(Date.now() - (6 - i) * 7000); t.textContent = '[' + d.toTimeString().slice(0, 8) + ']'; });
+const feed = document.getElementById('feed'), tc = document.getElementById('tc');
+setInterval(() => { const s = feed.currentTime || 0; tc.textContent = `${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(Math.floor(s)%60)}:${pad(Math.floor((s%1)*25))}`; }, 80);
+const soundBtn = document.getElementById('soundBtn');
+soundBtn.onclick = () => { feed.muted = !feed.muted; if (!feed.muted) feed.play(); soundBtn.setAttribute('aria-pressed', String(!feed.muted)); soundBtn.textContent = feed.muted ? 'SOUND OFF' : 'SOUND ON'; };
+
+/* ============ SET ARC ============ */
+const arc = document.getElementById('arc');
+for (let i = 0; i < 48; i++) { const t = i / 47; const h = 12 + 88 * Math.pow(t, 1.6) * (0.82 + 0.18 * Math.abs(Math.sin(i * 1.7))); const b = document.createElement('span'); b.style.height = h.toFixed(1) + '%'; arc.appendChild(b); }
+
+/* ============ FOOTAGE GRID ============ */
+const grid = document.getElementById('grid'), filters = document.getElementById('filters');
+let filter = 'all';
+const chipKeys = [['all','ALL'], ...[...new Set(SHOWS.map(s => SHORT[s.key]))].map(l => [l, l])];
+chipKeys.forEach(([k, l]) => { const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = l; b.dataset.k = k; b.setAttribute('aria-pressed', String(k === 'all')); b.onclick = () => { filter = k; filters.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === b))); renderGrid(); }; filters.appendChild(b); });
+function visible() { return filter === 'all' ? ALL : ALL.filter(c => SHORT[c.show.key] === filter); }
+function renderGrid() {
+  grid.innerHTML = '';
+  const list = visible();
+  document.getElementById('fCount').textContent = `ARCHIVE // ${pad(list.length)} FILES`;
+  list.forEach((c, idx) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cell';
+    b.setAttribute('aria-label', `Play footage ${idx + 1}: ${c.show.venue}`);
+    b.innerHTML = `<div class="cell-top"><span>${c.show.code}-${pad(c.n)}</span><span class="fmt ${c.show.fmt[0]}">${c.show.fmt[1]}</span></div>
+      <div class="thumb"><img loading="lazy" src="${c.poster}" alt=""><div class="reticle"></div><div class="readout">CAM ${pad(c.n)}<br>${c.show.when}</div><span class="play">PLAY ▶</span></div>
+      <div class="cell-body"><h3 class="venue">${c.show.venue}</h3><p class="spec">${c.show.place}</p></div>`;
+    const th = b.querySelector('.thumb');
+    b.addEventListener('mouseenter', () => { if (matchMedia('(hover:hover)').matches && !th.querySelector('video')) { const v = document.createElement('video'); v.src = c.src; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; th.insertBefore(v, th.children[1]); } });
+    b.addEventListener('mouseleave', () => { const v = th.querySelector('video'); if (v) { v.pause(); v.remove(); } });
+    b.onclick = () => openBay(list, idx, b);
+    grid.appendChild(b);
+  });
+}
+renderGrid();
+
+/* ============ TRANSMISSION LOG ============ */
+const tlog = document.getElementById('tlog');
+SHOWS.forEach(s => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="code">${s.code}</td><td class="v">${s.venue}<br><span class="spec">${s.place}</span></td><td>${s.when}</td><td><span class="fmt ${s.fmt[0]}">${s.fmt[1]}</span></td><td class="dim">${s.note || '—'}</td><td><button class="watch" type="button">WATCH ${pad(s.clips.length)} →</button></td>`;
+  tr.querySelector('.watch').onclick = e => { const list = ALL.filter(c => c.show === s); openBay(list, 0, e.currentTarget); };
+  tlog.appendChild(tr);
+});
+
+/* ============ PLAYBACK BAY (anchored, works inside a fixed-height embed) ============ */
+const bay = document.getElementById('bay'), scrim = document.getElementById('scrim'), bayVid = document.getElementById('bayVid');
+let bayList = [], bayIdx = 0, opener = null;
+function showClip() {
+  const c = bayList[bayIdx];
+  bayVid.src = c.src; bayVid.poster = c.poster; bayVid.muted = false; bayVid.play().catch(() => {});
+  document.getElementById('bayTitle').textContent = `PLAYBACK BAY // ${c.show.code}-${pad(c.n)}`;
+  document.getElementById('bayInfo').textContent = `${c.show.venue} · ${c.show.when} · ${pad(bayIdx + 1)}/${pad(bayList.length)}`;
+}
+function openBay(list, i, from) {
+  bayList = list; bayIdx = i; opener = from;
+  feed.pause();
+  scrim.hidden = false; scrim.style.height = document.documentElement.scrollHeight + 'px';
+  bay.hidden = false;
+  const r = from.getBoundingClientRect(), y = r.top + scrollY;
+  const top = Math.max(16, Math.min(y - 40, document.documentElement.scrollHeight - bay.offsetHeight - 16));
+  bay.style.top = top + 'px';
+  showClip(); document.getElementById('bayClose').focus();
+}
+function closeBay() { bayVid.pause(); bayVid.removeAttribute('src'); bayVid.load(); bay.hidden = true; scrim.hidden = true; feed.play().catch(() => {}); opener && opener.focus(); }
+document.getElementById('bayClose').onclick = closeBay; scrim.onclick = closeBay;
+document.getElementById('prev').onclick = () => { bayIdx = (bayIdx - 1 + bayList.length) % bayList.length; showClip(); };
+document.getElementById('next').onclick = () => { bayIdx = (bayIdx + 1) % bayList.length; showClip(); };
+bayVid.addEventListener('ended', () => { if (bayList.length > 1) document.getElementById('next').click(); });
+addEventListener('keydown', e => { if (bay.hidden) return; if (e.key === 'Escape') closeBay(); if (e.key === 'ArrowRight') document.getElementById('next').click(); if (e.key === 'ArrowLeft') document.getElementById('prev').click(); });
+</script>
+</body>
+</html>

@@ -186,7 +186,10 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 .mix.playing .mix-art .disc{animation-play-state:running}
 @keyframes spin{to{transform:rotate(360deg)}}
 .mix-art .label{width:36%;aspect-ratio:1;border-radius:50%;background:var(--ministry-red);display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--stencil);font-weight:900;font-size:clamp(12px,1.4vw,18px);line-height:.95;color:var(--bone);padding:8px}
-.mix-art .stamp{position:absolute;left:14px;top:14px;margin:0;background:rgba(8,8,11,.7)}
+.mix-art .stamp{position:absolute;left:14px;top:14px;margin:0;background:rgba(8,8,11,.7);z-index:2}
+.mix-art{aspect-ratio:4/5}
+.mix-art .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:filter .4s}
+.mix.playing .mix-art .cover{filter:brightness(1.12) saturate(1.15)}
 .mix-body{padding:24px clamp(18px,3vw,40px);display:flex;flex-direction:column;gap:18px;min-width:0}
 .kick{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--system-green)}
 .mix-title{overflow-wrap:anywhere;font-family:var(--stencil);font-weight:900;font-size:clamp(44px,6vw,96px);line-height:.85;margin:0;color:var(--bone);text-shadow:2px 0 0 rgba(190,24,38,.7),-2px 0 0 rgba(65,120,144,.7)}
@@ -207,7 +210,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 .set .no{font-size:10px;letter-spacing:.22em;color:var(--ministry-red);text-transform:uppercase}
 .set h3{margin:0;font-family:var(--stencil);font-weight:900;font-size:clamp(24px,2.2vw,34px);line-height:.92;color:var(--bone)}
 .set p{margin:0;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--concrete)}
-@media (max-width:1000px){.mix{grid-template-columns:minmax(0,1fr)}.mix-art{border-right:0;border-bottom:1px solid var(--concrete-dim);aspect-ratio:16/10}.mix-art .disc{width:auto;height:80%}.sets{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1000px){.mix{grid-template-columns:minmax(0,1fr)}.mix-art{border-right:0;border-bottom:1px solid var(--concrete-dim);aspect-ratio:4/5}.sets{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:600px){.deckp{grid-template-columns:auto minmax(0,1fr)}.time{grid-column:1/-1;font-size:18px}}
 </style>
 </head>
@@ -242,7 +245,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 <section class="section">
 <h2 class="sec-title"><span class="n">01.</span> NEW MIX <span class="aside">Press play · headphones advised</span></h2>
 <div class="panel-box mix" id="mix">
-<div class="mix-art"><span class="stamp">NEW</span><div class="disc"><div class="label">HEART<br>BREAK<br>ESS.</div></div></div>
+<div class="mix-art"><img class="cover" src="https://cdn.jsdelivr.net/gh/bonamimusic-ship-it/BONAMRADIO@ef9c53b/media/hbe-cover.jpg" alt="Heartbreak Essentials cover art"><span class="stamp">NEW</span></div>
 <div class="mix-body">
 <span class="kick">● Mix · BONAM</span>
 <h3 class="mix-title">HEARTBREAK <em>ESSENTIALS</em></h3>
@@ -251,7 +254,7 @@ h1{font-family:var(--stencil);font-weight:900;font-size:clamp(72px,11.5vw,210px)
 <div class="bars" id="bars" aria-hidden="true"></div>
 <span class="time" id="ptime">00:00 / --:--</span>
 </div>
-<audio id="aud" preload="none" data-src=""></audio>
+<audio id="aud" preload="metadata" data-src="https://bonamimusic-ship-it.github.io/BONAMRADIO/mixes/heartbreak-essentials.mp4"></audio>
 <p class="mix-note">A selection for the <b>broken-hearted</b>. Straight from the decks.</p>
 </div>
 </div>
